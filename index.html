@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carte de Nancy</title>
+
+    <!-- Feuille de style Leaflet -->
+    <link
+        rel="stylesheet"
+        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    >
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        h1 {
+            margin: 0;
+            padding: 16px;
+            text-align: center;
+        }
+
+        #map {
+            height: calc(100vh - 70px);
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <h1>Carte de Nancy</h1>
+
+    <div id="map"></div>
+
+    <!-- Librairie Leaflet -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <script>
+        // Coordonnées du centre de Nancy
+        const latitudeNancy = 48.6921;
+        const longitudeNancy = 6.1844;
+
+        // Création de la carte
+        const map = L.map("map").setView(
+            [latitudeNancy, longitudeNancy],
+            13
+        );
+
+        // Fond de carte OpenStreetMap
+        L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+            maxZoom: 19,
+            attribution: "&copy; OpenStreetMap"
+        }).addTo(map);
+
+        // Marqueur de test
+        L.marker([latitudeNancy, longitudeNancy])
+            .addTo(map)
+            .bindPopup("Centre de Nancy");
+    </script>
+</body>
+</html>
