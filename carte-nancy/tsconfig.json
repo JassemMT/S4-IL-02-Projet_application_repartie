@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "target": "ES2015",
+    //"outDir": "dist",
+    "strict": true,
+    // Sa sert a utiliser une variable globale dans un module
+    "allowUmdGlobalAccess": true
+  },
+
+  "include": ["src/**/*.ts"]
+}

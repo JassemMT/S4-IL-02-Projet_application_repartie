@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Carte de Nancy</title>
+
+    <link
+        rel="stylesheet"
+        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    >
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        h1 {
+            margin: 0;
+            padding: 14px;
+            text-align: center;
+        }
+
+        #message {
+            padding: 8px;
+            text-align: center;
+        }
+
+        #map {
+            height: calc(100vh - 100px);
+            width: 100%;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Stations VélOstan'lib à Nancy</h1>
+
+    <div id="message">
+        Chargement des stations...
+    </div>
+
+    <div id="map"></div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <!-- config.js doit être chargé avant app.js -->
+    <script src="dist/app.js"></script>
+</body>
+</html>

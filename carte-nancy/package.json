@@ -1,0 +1,10 @@
+{
+  "scripts": {
+    "build": "esbuild src/app.ts --bundle --outfile=dist/app.js --format=esm"
+  },
+  "devDependencies": {
+    "@types/leaflet": "^1.9.21",
+    "esbuild": "^0.28.0",
+    "typescript": "^5.0.0"
+  }
+}
