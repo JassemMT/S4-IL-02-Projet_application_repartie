@@ -5,6 +5,7 @@
     Types des données reçues depuis les API
 */
 import { CONFIG } from "./config";
+import logoSvg from "../img/velo-meca.svg";
 
 interface StationInformationInterface {
     station_id: string;
@@ -111,6 +112,19 @@ function ajouterFondDeCarte(): void {
     ).addTo(map);
 }
 
+// Génère un L.DivIcon contenant le logo SVG dans le rond vert
+function createIconWithLogo(): L.DivIcon {
+    const html = `<div class="marker-pin"><div class="marker-dot">${logoSvg}</div></div>`;
+
+        return L.divIcon({
+                className: 'custom-div-icon',
+                html,
+                iconSize: [44, 60],
+                iconAnchor: [22, 60],
+                popupAnchor: [0, -45]
+        });
+}
+
 
 /*
     Cherche les disponibilités correspondant à une station
@@ -141,16 +155,16 @@ function afficherStation(
     const adresse: string =
         station.address || "Adresse non renseignée";
 
-    L.marker([
-        station.lat,
-        station.lon
-    ])
+    L.marker(
+        [station.lat, station.lon],
+        { icon: createIconWithLogo() }
+    )
         .addTo(map)
         .bindPopup(`
             <strong>${station.name}</strong><br>
             Adresse : ${adresse}<br>
             Vélos disponibles : ${disponibilite.num_bikes_available}<br>
-            Places libres : ${disponibilite.num_docks_available}
+            Places libres : ${disponibilite.num_docks_available}<br>
         `);
 }
 
@@ -227,10 +241,12 @@ const disponibilitesPromise: Promise<StationStatusResponseInterface> =
         .then(verifierReponse)
         .then(lireDisponibilitesStations);
 
-
 Promise.all([
     informationsPromise,
     disponibilitesPromise
 ])
-    .then(afficherStations)
+    .then((results) => {
+        // Appel explicite avec les deux réponses attendues
+        afficherStations([results[0] as StationInformationResponseInterface, results[1] as StationStatusResponseInterface]);
+    })
     .catch(afficherErreur);
