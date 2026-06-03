@@ -1,17 +1,21 @@
-# Compiled class file
+# Fichiers compilés Java
 *.class
 
-# Log file
+# Logs
 *.log
-*.properties
-# BlueJ files
+
+# BlueJ
 *.ctxt
 
-# Mobile Tools for Java (J2ME)
+# J2ME
 .mtj.tmp/
 
-# Package Files #
+# Artefacts de build Maven
+target/
+
+# Archives (sauf ojdbc17 vendorisé nécessaire à la compilation)
 *.jar
+!ojdbc17.jar
 *.war
 *.nar
 *.ear
@@ -19,10 +23,17 @@
 *.tar.gz
 *.rar
 
-# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
+# Crash logs JVM
 hs_err_pid*
 replay_pid*
 
-node_modules*
+# macOS
+.DS_Store
 
-            // --- Validation des champs ---
+# Node.js (frontend)
+node_modules/
+
+# IDE
+.idea/
+*.iml
+.vscode/
