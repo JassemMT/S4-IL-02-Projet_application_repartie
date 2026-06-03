@@ -1,6 +1,6 @@
 # Fichiers compilés Java
 *.class
-
+*.properties
 # Logs
 *.log
 
