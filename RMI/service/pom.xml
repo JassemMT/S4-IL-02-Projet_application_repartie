@@ -26,7 +26,7 @@
             <artifactId>ojdbc17</artifactId>
             <version>21.0</version>
             <scope>system</scope>
-            <systemPath>${project.basedir}/../lib/ojdbc17.jar</systemPath>
+            <systemPath>${project.basedir}/ojdbc17.jar</systemPath>
         </dependency>
     </dependencies>
 
