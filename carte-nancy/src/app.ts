@@ -150,20 +150,6 @@ function createIconWithLogo(): L.DivIcon {
   }
 
 
-function afficherOuiNon(valeur: boolean): string {
-  if (valeur) {
-    return "Oui";
-  }
-
-  return "Non";
-}
-
-function formaterDate(timestamp: number): string {
-  const date: Date = new Date(timestamp * 1000);
-
-  return date.toLocaleString("fr-FR");
-}
-
 
 /*
     Affiche un marqueur sur la carte ( affiche seulement une station)
