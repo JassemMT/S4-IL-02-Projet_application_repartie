@@ -1,45 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
                              http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>iut.nancy</groupId>
-    <artifactId>service-restaurant</artifactId>
-    <version>1.0</version>
+    <!-- Référence au parent -->
+    <parent>
+        <groupId>sae.s4</groupId>
+        <artifactId>rmi-parent</artifactId>
+        <version>1.0</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>rmi-service</artifactId>
     <packaging>jar</packaging>
 
     <properties>
-        <maven.compiler.release>11</maven.compiler.release>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <main.class>LancerServeur</main.class>
     </properties>
 
     <dependencies>
         <dependency>
-            <groupId>com.oracle.database.jdbc</groupId>
-            <artifactId>ojdbc8</artifactId>
-            <version>23.5.0.24.07</version>
+            <groupId>com.oracle</groupId>
+            <artifactId>ojdbc17</artifactId>
+            <version>21.0</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/../lib/ojdbc17.jar</systemPath>
         </dependency>
     </dependencies>
 
     <build>
-        <sourceDirectory>${project.basedir}</sourceDirectory>
-        <resources>
-            <resource>
-                <directory>${project.basedir}</directory>
-                <includes>
-                    <include>config.properties</include>
-                </includes>
-            </resource>
-        </resources>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.13.0</version>
-                <configuration>
-                    <release>${maven.compiler.release}</release>
-                </configuration>
             </plugin>
 
             <plugin>
@@ -49,16 +45,17 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>LancerServeur</mainClass>
+                            <mainClass>${main.class}</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>
                         <descriptorRef>jar-with-dependencies</descriptorRef>
                     </descriptorRefs>
+                    <appendAssemblyId>false</appendAssemblyId>
                 </configuration>
                 <executions>
                     <execution>
-                        <id>assemble-all</id>
+                        <id>make-assembly</id>
                         <phase>package</phase>
                         <goals>
                             <goal>single</goal>
@@ -68,4 +65,5 @@
             </plugin>
         </plugins>
     </build>
+
 </project>
