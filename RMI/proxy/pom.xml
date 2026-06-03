@@ -1,21 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
                              http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>iut.nancy</groupId>
-    <artifactId>proxy-restaurant</artifactId>
-    <version>1.0</version>
+    <parent>
+        <groupId>sae.s4</groupId>
+        <artifactId>rmi-parent</artifactId>
+        <version>1.0</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>rmi-proxy</artifactId>
     <packaging>jar</packaging>
 
     <properties>
-        <maven.compiler.release>11</maven.compiler.release>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <main.class>ProxyHTTP</main.class>
     </properties>
 
     <dependencies>
-        <!-- Parsing JSON -->
+        <!-- Gson pour parser le JSON du body des requêtes HTTP -->
         <dependency>
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
@@ -25,7 +30,6 @@
 
     <build>
         <plugins>
-            <!-- JAR exécutable avec toutes les dépendances incluses -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
@@ -33,29 +37,23 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>ProxyHTTP</mainClass>
+                            <mainClass>${main.class}</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>
                         <descriptorRef>jar-with-dependencies</descriptorRef>
                     </descriptorRefs>
+                    <appendAssemblyId>false</appendAssemblyId>
                 </configuration>
                 <executions>
                     <execution>
-                        <id>assemble-all</id>
+                        <id>make-assembly</id>
                         <phase>package</phase>
                         <goals>
                             <goal>single</goal>
                         </goals>
                     </execution>
                 </executions>
-            </plugin>
-
-            <!-- Javadoc -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <version>3.6.0</version>
             </plugin>
         </plugins>
     </build>
