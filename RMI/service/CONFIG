@@ -1,5 +1,0 @@
-db.url=jdbc:oracle:thin:@charlemagne:1521:xe
-db.user=monuser
-db.password=monpassword
-rmi.port=1099
-rmi.name=serviceRestaurant
