@@ -48,25 +48,11 @@ public class ServiceRestaurantImpl extends UnicastRemoteObject implements Servic
             return "";
         }
 
-        StringBuilder escaped = new StringBuilder(value.length() + 16);
-        for (char c : value.toCharArray()) {
-            switch (c) {
-                case '"': escaped.append("\\\""); break;
-                case '\\': escaped.append("\\\\"); break;
-                case '\b': escaped.append("\\b"); break;
-                case '\f': escaped.append("\\f"); break;
-                case '\n': escaped.append("\\n"); break;
-                case '\r': escaped.append("\\r"); break;
-                case '\t': escaped.append("\\t"); break;
-                default:
-                    if (c < 0x20) {
-                        escaped.append(String.format("\\u%04x", (int) c));
-                    } else {
-                        escaped.append(c);
-                    }
-            }
-        }
-        return escaped.toString();
+        return value.replace("\\", "\\\\")
+                    .replace("\"", "\\\"")
+                    .replace("\n", "\\n")
+                    .replace("\r", "\\r")
+                    .replace("\t", "\\t");
     }
 
     private static String jsonError(String message) {
