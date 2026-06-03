@@ -13,12 +13,18 @@ interface StationInformationInterface {
     address?: string;
     lat: number;
     lon: number;
+    capacity?: number,
 }
+
 
 interface StationStatusInterface {
     station_id: string;
     num_bikes_available: number;
     num_docks_available: number;
+    is_installed: boolean;
+    is_renting: boolean;
+    is_returning: boolean;
+    last_reported: number;
 }
 
 interface StationInformationResponseInterface {
@@ -144,27 +150,59 @@ function createIconWithLogo(): L.DivIcon {
   }
 
 
+function afficherOuiNon(valeur: boolean): string {
+  if (valeur) {
+    return "Oui";
+  }
+
+  return "Non";
+}
+
+function formaterDate(timestamp: number): string {
+  const date: Date = new Date(timestamp * 1000);
+
+  return date.toLocaleString("fr-FR");
+}
+
+
 /*
     Affiche un marqueur sur la carte ( affiche seulement une station)
 */
 
-function afficherStation(
-    station: StationInformationInterface,
-    disponibilite: StationStatusInterface
-): void {
-    const adresse: string =
-        station.address || "Adresse non renseignée";
+function afficherStation( station: StationInformationInterface, disponibilite: StationStatusInterface,): void {
+  const adresse: string = station.address || "Adresse non renseignée";
 
-    L.marker(
-        [station.lat, station.lon],
-        { icon: createIconWithLogo() }
-    )
-        .addTo(map)
-        .bindPopup(`
-            <strong>${station.name}</strong><br>
+  const capaciteTotale: number =
+    disponibilite.num_bikes_available + disponibilite.num_docks_available;
+
+  const stationInstallee: string = disponibilite.is_installed ? "Oui" : "Non";
+
+  const empruntPossible: string = disponibilite.is_renting ? "Oui" : "Non";
+
+  const retourPossible: string = disponibilite.is_returning ? "Oui" : "Non";
+
+  const derniereMiseAJour: string = new Date(disponibilite.last_reported * 1000).toLocaleString("fr-FR");
+
+  L.marker([station.lat, station.lon], { icon: createIconWithLogo() }).addTo(
+    map,
+  ).bindPopup(`
+            <strong>${station.name}</strong><br><br>
+
             Adresse : ${adresse}<br>
-            Vélos disponibles : ${disponibilite.num_bikes_available}<br>
-            Places libres : ${disponibilite.num_docks_available}<br>
+            Capacité totale : ${capaciteTotale}<br><br>
+
+            Vélos disponibles :
+            ${disponibilite.num_bikes_available}<br>
+
+            Places libres :
+            ${disponibilite.num_docks_available}<br><br>
+
+            Station installée : ${stationInstallee}<br>
+            Emprunt possible : ${empruntPossible}<br>
+            Retour possible : ${retourPossible}<br><br>
+
+            Dernière mise à jour :
+            ${derniereMiseAJour}
         `);
 }
 

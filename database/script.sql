@@ -7,7 +7,10 @@ CREATE TABLE RESTAURANT (
     NOM             VARCHAR2(100) NOT NULL,
     ADRESSE         VARCHAR2(255) NOT NULL,
     LATITUDE        NUMBER(9, 6) NOT NULL,
-    LONGITUDE       NUMBER(9, 6) NOT NULL
+    LONGITUDE       NUMBER(9, 6) NOT NULL,
+
+    CONSTRAINT UQ_RESTAURANT_NOM_ADRESSE
+        UNIQUE (NOM, ADRESSE)
 );
 
 
@@ -27,7 +30,7 @@ CREATE TABLE TABLE_RESTAURANT (
 
 
 /* =========================================================
-   CRÉNEAUX HORAIRES DES TABLES
+   CRÉNEAUX HORAIRES
    ========================================================= */
 
 CREATE TABLE CRENEAU_TABLE (
@@ -39,12 +42,16 @@ CREATE TABLE CRENEAU_TABLE (
 
     CONSTRAINT FK_CRENEAU_TABLE
         FOREIGN KEY (NUM_TABLE)
-        REFERENCES TABLE_RESTAURANT(NUM_TABLE)
+        REFERENCES TABLE_RESTAURANT(NUM_TABLE),
+
+    CONSTRAINT UQ_CRENEAU_TABLE
+        UNIQUE (NUM_TABLE, DEBUT, FIN)
 );
 
 
 /* =========================================================
    RÉSERVATIONS
+   Une seule réservation peut utiliser un créneau.
    ========================================================= */
 
 CREATE TABLE RESERVATION (
@@ -58,29 +65,100 @@ CREATE TABLE RESERVATION (
 
     CONSTRAINT FK_RESERVATION_CRENEAU
         FOREIGN KEY (NUM_CRENEAU)
-        REFERENCES CRENEAU_TABLE(NUM_CRENEAU)
+        REFERENCES CRENEAU_TABLE(NUM_CRENEAU),
+
+    CONSTRAINT UQ_RESERVATION_CRENEAU
+        UNIQUE (NUM_CRENEAU)
 );
 
 
 /* =========================================================
-   SÉQUENCES
-   Les identifiants 1 à 99 sont réservés aux données de test.
-   L'application générera les nouveaux identifiants à partir
-   de 100.
+   PLATS PROPOSÉS PAR LES RESTAURANTS
+   ========================================================= */
+
+CREATE TABLE PLAT (
+    NUM_PLAT        NUMBER PRIMARY KEY,
+    NUM_RESTAURANT  NUMBER NOT NULL,
+    LIBELLE         VARCHAR2(100) NOT NULL,
+    PRIX_UNITAIRE   NUMBER(10, 2) NOT NULL,
+    QTE_STOCKEE     NUMBER NOT NULL,
+
+    CONSTRAINT FK_PLAT_RESTAURANT
+        FOREIGN KEY (NUM_RESTAURANT)
+        REFERENCES RESTAURANT(NUM_RESTAURANT),
+
+    CONSTRAINT UQ_PLAT_RESTAURANT_LIBELLE
+        UNIQUE (NUM_RESTAURANT, LIBELLE)
+);
+
+
+/* =========================================================
+   COMMANDES
+   Une réservation peut avoir plusieurs commandes.
+   ========================================================= */
+
+CREATE TABLE COMMANDE (
+    NUM_COMMANDE     NUMBER PRIMARY KEY,
+    NUM_RESERVATION  NUMBER NOT NULL,
+    DATE_COMMANDE    TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL,
+    MONTANT          NUMBER(10, 2) DEFAULT 0 NOT NULL,
+    STATUT           VARCHAR2(20) DEFAULT 'EN_COURS' NOT NULL,
+
+    CONSTRAINT FK_COMMANDE_RESERVATION
+        FOREIGN KEY (NUM_RESERVATION)
+        REFERENCES RESERVATION(NUM_RESERVATION)
+);
+
+
+/* =========================================================
+   CONTENU DES COMMANDES
+   La clé primaire composée empêche d’avoir deux lignes
+   séparées pour le même plat dans la même commande.
+   ========================================================= */
+
+CREATE TABLE CONTIENT (
+    NUM_COMMANDE            NUMBER NOT NULL,
+    NUM_PLAT                NUMBER NOT NULL,
+    QUANTITE                NUMBER NOT NULL,
+    PRIX_UNITAIRE_COMMANDE  NUMBER(10, 2) NOT NULL,
+
+    CONSTRAINT PK_CONTIENT
+        PRIMARY KEY (NUM_COMMANDE, NUM_PLAT),
+
+    CONSTRAINT FK_CONTIENT_COMMANDE
+        FOREIGN KEY (NUM_COMMANDE)
+        REFERENCES COMMANDE(NUM_COMMANDE),
+
+    CONSTRAINT FK_CONTIENT_PLAT
+        FOREIGN KEY (NUM_PLAT)
+        REFERENCES PLAT(NUM_PLAT)
+);
+
+
+/* =========================================================
+   SÉQUENCES ORACLE
    ========================================================= */
 
 CREATE SEQUENCE SEQ_RESTAURANT
-    START WITH 100
+    START WITH 1
     INCREMENT BY 1;
 
 CREATE SEQUENCE SEQ_TABLE_RESTAURANT
-    START WITH 100
+    START WITH 1
     INCREMENT BY 1;
 
 CREATE SEQUENCE SEQ_CRENEAU_TABLE
-    START WITH 100
+    START WITH 1
     INCREMENT BY 1;
 
 CREATE SEQUENCE SEQ_RESERVATION
-    START WITH 100
+    START WITH 1
+    INCREMENT BY 1;
+
+CREATE SEQUENCE SEQ_PLAT
+    START WITH 1
+    INCREMENT BY 1;
+
+CREATE SEQUENCE SEQ_COMMANDE
+    START WITH 1
     INCREMENT BY 1;
