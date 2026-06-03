@@ -65,14 +65,31 @@ function chercherDisponibilite(stationId, disponibilites) {
 }
 function afficherStation(station, disponibilite) {
   const adresse = station.address || "Adresse non renseign\xE9e";
-  L.marker(
-    [station.lat, station.lon],
-    { icon: createIconWithLogo() }
-  ).addTo(map).bindPopup(`
-            <strong>${station.name}</strong><br>
+  const capaciteTotale = disponibilite.num_bikes_available + disponibilite.num_docks_available;
+  const stationInstallee = disponibilite.is_installed ? "Oui" : "Non";
+  const empruntPossible = disponibilite.is_renting ? "Oui" : "Non";
+  const retourPossible = disponibilite.is_returning ? "Oui" : "Non";
+  const derniereMiseAJour = new Date(disponibilite.last_reported * 1e3).toLocaleString("fr-FR");
+  L.marker([station.lat, station.lon], { icon: createIconWithLogo() }).addTo(
+    map
+  ).bindPopup(`
+            <strong>${station.name}</strong><br><br>
+
             Adresse : ${adresse}<br>
-            V\xE9los disponibles : ${disponibilite.num_bikes_available}<br>
-            Places libres : ${disponibilite.num_docks_available}<br>
+            Capacit\xE9 totale : ${capaciteTotale}<br><br>
+
+            V\xE9los disponibles :
+            ${disponibilite.num_bikes_available}<br>
+
+            Places libres :
+            ${disponibilite.num_docks_available}<br><br>
+
+            Station install\xE9e : ${stationInstallee}<br>
+            Emprunt possible : ${empruntPossible}<br>
+            Retour possible : ${retourPossible}<br><br>
+
+            Derni\xE8re mise \xE0 jour :
+            ${derniereMiseAJour}
         `);
 }
 function afficherStations(reponses) {
