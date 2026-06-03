@@ -1,6 +1,6 @@
+import java.io.InputStream;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
-import java.io.InputStream;
 import java.util.Properties;
 
 public class LancerServeur {
@@ -9,13 +9,12 @@ public class LancerServeur {
         try {
             // Lecture du config.properties
             Properties props = new Properties();
-            try (InputStream in = LancerServeur.class.getClassLoader()
-                                                     .getResourceAsStream("config.properties")) {
+            try (InputStream in = LancerServeur.class.getClassLoader().getResourceAsStream("config.properties")) {
                 if (in == null) throw new RuntimeException("config.properties introuvable");
                 props.load(in);
             }
 
-            int port       = Integer.parseInt(props.getProperty("rmi.port", "1099"));
+            int port = Integer.parseInt(props.getProperty("rmi.port", "1099"));
             String rmiName = props.getProperty("rmi.name", "serviceRestaurant");
 
             // Création de l'annuaire et enregistrement du service
