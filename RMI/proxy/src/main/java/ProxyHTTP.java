@@ -4,6 +4,13 @@ import java.net.InetSocketAddress;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.util.Properties;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.InetSocketAddress;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -25,7 +32,6 @@ public class ProxyHTTP {
 
     /**
      * Gère le preflight CORS (OPTIONS). Retourne true si la requête était OPTIONS
-     * (la réponse 204 est envoyée, le handler doit alors terminer).
      */
     private static boolean handleOptions(HttpExchange exchange) throws java.io.IOException {
         if ("OPTIONS".equalsIgnoreCase(exchange.getRequestMethod())) {
@@ -71,10 +77,28 @@ public class ProxyHTTP {
             return;
         }
 
-        String rmiHost  = props.getProperty("rmi.host", "localhost");
-        int    rmiPort  = Integer.parseInt(props.getProperty("rmi.port", "1099"));
-        String rmiName  = props.getProperty("rmi.name", "serviceRestaurant");
-        int    httpPort = Integer.parseInt(props.getProperty("http.port", "8080"));
+        String rmiHost      = props.getProperty("rmi.host", "localhost");
+        int    rmiPort      = Integer.parseInt(props.getProperty("rmi.port", "1099"));
+        String rmiName      = props.getProperty("rmi.name", "serviceRestaurant");
+        int    httpPort     = Integer.parseInt(props.getProperty("http.port", "8080"));
+        String incidentsUrl = props.getProperty("incidents.url", "").trim();
+        String iutProxyHost = props.getProperty("iut.proxy.host", "").trim();
+        String iutProxyPort = props.getProperty("iut.proxy.port", "").trim();
+
+        HttpClient httpClient;
+
+        /*Explication :
+        * Si les variables d'environnement iut.proxy.host et iut.proxy.port sont définies, cela signifie que nous sommes dans l'environnement de l'IUT
+        * et que nous devons utiliser le proxy de l'IUT pour accéder à Internet (notamment pour l'API Grand Nancy).
+        * Sinon, nous sommes probablement en local et pouvons faire les requêtes HTTP directement sans proxy.
+        */
+        if (!iutProxyHost.isEmpty() && !iutProxyPort.isEmpty()) {
+            httpClient = HttpClient.newBuilder()
+                .proxy(java.net.ProxySelector.of(new InetSocketAddress(iutProxyHost, Integer.parseInt(iutProxyPort))))
+                .build();
+        } else {
+            httpClient = HttpClient.newHttpClient();
+        }
 
         // --- Connexion au registre RMI ---
         ServiceRestaurant service;
@@ -137,6 +161,36 @@ public class ProxyHTTP {
                 sendJson(exchange, 200, json);
             } catch (Exception e) {
                 System.err.println("Erreur /reserver : " + e.getMessage());
+                try { sendJson(exchange, 500, "{\"status\":\"error\",\"message\":\"Erreur interne\"}"); } catch (Exception ignored) {}
+            } finally {
+                exchange.close();
+            }
+        });
+
+        // GET /incidents — incidents de circulation Grand Nancy (via HttpClient, contourn CORS)
+        server.createContext("/incidents", exchange -> {
+            try {
+                if (handleOptions(exchange)) return;
+                if (!"GET".equalsIgnoreCase(exchange.getRequestMethod())) {
+                    sendJson(exchange, 405, "{\"status\":\"error\",\"message\":\"Méthode non autorisée\"}");
+                    return;
+                }
+                if (incidentsUrl.isEmpty()) {
+                    sendJson(exchange, 503, "{\"status\":\"error\",\"message\":\"URL incidents non configurée\"}");
+                    return;
+                }
+                HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(incidentsUrl))
+                    .GET()
+                    .build();
+                HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+                if (response.statusCode() != 200) {
+                    sendJson(exchange, 502, "{\"status\":\"error\",\"message\":\"Erreur API Grand Nancy : " + response.statusCode() + "\"}");
+                    return;
+                }
+                sendJson(exchange, 200, response.body());
+            } catch (Exception e) {
+                System.err.println("Erreur /incidents : " + e.getMessage());
                 try { sendJson(exchange, 500, "{\"status\":\"error\",\"message\":\"Erreur interne\"}"); } catch (Exception ignored) {}
             } finally {
                 exchange.close();

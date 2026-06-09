@@ -6,6 +6,7 @@
 */
 import { CONFIG } from "./config";
 import logoSvg from "../img/velo-meca.svg";
+import restaurantSvg from "../img/restaurant-icon.svg";
 
 interface StationInformationInterface {
     station_id: string;
@@ -249,28 +250,139 @@ function afficherErreur(erreur: unknown): void {
 
 
 /*
+    Types des données restaurants (depuis notre proxy RMI)
+*/
+
+interface RestaurantInterface {
+    id: number;
+    nom: string;
+    adresse: string;
+    latitude: number;
+    longitude: number;
+}
+
+
+/*
+    Types des données incidents Grand Nancy 
+*/
+
+interface IncidentGeoPoint {
+    lon: number;
+    lat: number;
+}
+
+interface IncidentInterface {
+    geo_point_2d?: IncidentGeoPoint;
+    adresse_exacte?: string;
+    adresse?: string;
+    cause?: string;
+    motif?: string;
+    date_debut?: string;
+    date_fin?: string;
+}
+
+interface IncidentsResponseInterface {
+    total_count: number;
+    results: IncidentInterface[];
+}
+
+
+/*
+    Icône marqueur restaurant (rouge)
+*/
+
+function createRestaurantIcon(): L.DivIcon {
+    return L.divIcon({
+        className: "restaurant-marker",
+        html: `<div class="marker-pin"><div class="marker-dot">${restaurantSvg}</div></div>`,
+        iconSize: [44, 60],
+        iconAnchor: [22, 60],
+        popupAnchor: [0, -45],
+    });
+}
+
+
+/*
+    Icône marqueur incident (orange)
+*/
+
+function createIncidentIcon(): L.DivIcon {
+    return L.divIcon({
+        className: "incident-marker",
+        html: `<div class="marker-pin"><div class="marker-dot">⚠</div></div>`,
+        iconSize: [44, 60],
+        iconAnchor: [22, 60],
+        popupAnchor: [0, -45],
+    });
+}
+
+
+/*
+    Affiche un marqueur restaurant sur la carte
+*/
+
+function afficherRestaurant(restaurant: RestaurantInterface): void {
+    L.marker([restaurant.latitude, restaurant.longitude], { icon: createRestaurantIcon() })
+        .addTo(map)
+        .bindPopup(`
+            <strong>${restaurant.nom}</strong><br><br>
+            Adresse : ${restaurant.adresse}
+        `);
+}
+
+function afficherRestaurants(restaurants: RestaurantInterface[]): void {
+    for (const restaurant of restaurants) {
+        afficherRestaurant(restaurant);
+    }
+    console.log(`${restaurants.length} restaurants chargés.`);
+}
+
+
+/*
+    Affiche un marqueur incident sur la carte
+*/
+
+function afficherIncident(incident: IncidentInterface): void {
+   //Yanis devra le faire
+}
+
+function afficherIncidents(data: IncidentsResponseInterface): void {
+    //Yanis devra le faire
+}
+
+
+/*
     Début du programme
 */
 
 ajouterFondDeCarte();
 
+// Stations vélo (API Cyclocity directe)
 const informationsPromise: Promise<StationInformationResponseInterface> =
     fetch(CONFIG.stationInformationUrl)
         .then(verifierReponse)
         .then(lireInformationsStations);
-
 
 const disponibilitesPromise: Promise<StationStatusResponseInterface> =
     fetch(CONFIG.stationStatusUrl)
         .then(verifierReponse)
         .then(lireDisponibilitesStations);
 
-Promise.all([
-    informationsPromise,
-    disponibilitesPromise
-])
+Promise.all([informationsPromise, disponibilitesPromise])
     .then((results) => {
-        // Appel explicite avec les deux réponses attendues
-        afficherStations([results[0] as StationInformationResponseInterface, results[1] as StationStatusResponseInterface]);
+        afficherStations([
+            results[0] as StationInformationResponseInterface,
+            results[1] as StationStatusResponseInterface,
+        ]);
     })
     .catch(afficherErreur);
+
+// Restaurants (via proxy RMI)
+fetch(`${CONFIG.proxyUrl}/restaurants`)
+    .then(verifierReponse)
+    .then((r) => r.json() as Promise<RestaurantInterface[]>)
+    .then(afficherRestaurants)
+    .catch((e) => console.error("Impossible de charger les restaurants :", e));
+
+// Incidents de circulation Grand Nancy (via proxy HttpClient)
+//Yanis devra le faire de la meme maniere que les restaurants
