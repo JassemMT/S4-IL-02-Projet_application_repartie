@@ -1,3 +1,6 @@
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.InetSocketAddress;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.util.Properties;
@@ -9,11 +12,10 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 
-import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpServer;
-
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.sun.net.httpserver.HttpExchange;
+import com.sun.net.httpserver.HttpServer;
 
 /**
  * Proxy HTTP faisant la passerelle entre le navigateur et les services RMI.
@@ -130,32 +132,6 @@ public class ProxyHTTP {
                 sendJson(exchange, 200, json);
             } catch (Exception e) {
                 System.err.println("Erreur /restaurants : " + e.getMessage());
-                try { sendJson(exchange, 500, "{\"status\":\"error\",\"message\":\"Erreur interne\"}"); } catch (Exception ignored) {}
-            } finally {
-                exchange.close();
-            }
-        });
-
-        // GET /plats?idRestaurant=X — plats d'un restaurant
-        server.createContext("/plats", exchange -> {
-            try {
-                if (handleOptions(exchange)) return;
-                if (!"GET".equalsIgnoreCase(exchange.getRequestMethod())) {
-                    sendJson(exchange, 405, "{\"status\":\"error\",\"message\":\"Méthode non autorisée\"}");
-                    return;
-                }
-                String idParam = getQueryParam(exchange, "idRestaurant");
-                if (idParam == null) {
-                    sendJson(exchange, 400, "{\"status\":\"error\",\"message\":\"Paramètre idRestaurant manquant\"}");
-                    return;
-                }
-                int idRestaurant = Integer.parseInt(idParam);
-                String json = service.getPlats(idRestaurant);
-                sendJson(exchange, 200, json);
-            } catch (NumberFormatException e) {
-                try { sendJson(exchange, 400, "{\"status\":\"error\",\"message\":\"idRestaurant invalide\"}"); } catch (Exception ignored) {}
-            } catch (Exception e) {
-                System.err.println("Erreur /plats : " + e.getMessage());
                 try { sendJson(exchange, 500, "{\"status\":\"error\",\"message\":\"Erreur interne\"}"); } catch (Exception ignored) {}
             } finally {
                 exchange.close();
