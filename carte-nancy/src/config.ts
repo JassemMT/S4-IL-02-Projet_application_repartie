@@ -2,6 +2,7 @@ export interface ConfigurationInterface {
   tileLayerUrl: string;
   stationInformationUrl: string;
   stationStatusUrl: string;
+  proxyUrl: string;
 }
 
 export const CONFIG: ConfigurationInterface = {
@@ -12,4 +13,6 @@ export const CONFIG: ConfigurationInterface = {
 
   stationStatusUrl:
     "https://api.cyclocity.fr/contracts/nancy/gbfs/v2/station_status.json",
+
+  proxyUrl: "http://localhost:8080",
 };
