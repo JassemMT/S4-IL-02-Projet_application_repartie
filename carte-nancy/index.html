@@ -1,15 +1,13 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>Carte de Nancy</title>
 
-    <link
-        rel="stylesheet"
-        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-    >
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 
     <style>
         body {
@@ -32,283 +30,72 @@
             height: calc(100vh - 100px);
             width: 100%;
         }
+
         /*  styles marqueurs  */
         .custom-div-icon {
             background: transparent;
-            width: 44px; 
-            height: 60px; 
+            width: 44px;
+            height: 60px;
             display: inline-block;
         }
 
         .custom-div-icon .marker-pin {
             width: 40px;
             height: 40px;
-            background: white; 
+            background: white;
             display: flex;
             align-items: center;
             justify-content: center;
             position: relative;
             transform: rotate(-45deg);
             border-radius: 20px 20px 20px 0;
-            box-shadow: 0 3px 8px rgba(0,0,0,0.16);
-            border: 1px solid rgba(0,0,0,0.08);
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.16);
+            border: 1px solid rgba(0, 0, 0, 0.08);
         }
 
         .custom-div-icon .marker-dot {
-            width: 26px; 
-            height: 26px; 
-            background: #277d4a; 
+            width: 26px;
+            height: 26px;
+            background: #277d4a;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: inset 0 1px 0 rgba(255,255,255,0.4);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4);
             overflow: hidden;
         }
 
         .custom-div-icon .marker-dot svg {
-            width: 22px; 
+            width: 22px;
             height: 22px;
             display: block;
             transform: rotate(45deg);
             transform-origin: center;
         }
 
-        /* Onglets */
-        .tabs {
-            display: flex;
-            justify-content: center;
-            background-color: #333;
-            padding: 10px 0;
-        }
 
-        .tab-btn {
-            background-color: inherit;
-            color: white;
-            border: none;
-            outline: none;
-            cursor: pointer;
-            padding: 10px 20px;
-            font-size: 16px;
-            transition: 0.3s;
-            border-radius: 5px;
-            margin: 0 5px;
-        }
+        .custom-div-icon {
+            width: 50px;
+            height: 50px;
+            display: inline-block;
 
-        .tab-btn:hover {
-            background-color: #555;
-        }
-
-        .tab-btn.active {
-            background-color: #277d4a;
-        }
-
-        .tab-content {
-            display: none;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
-        /* Styles du compte rendu */
-        #report-tab {
-            padding: 20px 40px;
-            max-width: 1000px;
-            margin: auto;
-            line-height: 1.6;
-        }
-        
-        #report-tab h2 { color: #277d4a; border-bottom: 2px solid #277d4a; padding-bottom: 5px; }
-        #report-tab h3 { color: #333; margin-top: 20px; }
-        .code-block { background-color: #f4f4f4; border-left: 4px solid #277d4a; padding: 10px; font-family: monospace; overflow-x: auto; margin-bottom: 15px;}
-        .highlight { font-weight: bold; color: #d32f2f; }
-        .schema-container { text-align: center; margin: 30px 0; padding: 20px; background-color: #fff; border: 1px solid #ddd; border-radius: 8px; }
-
-        /* Marqueurs restaurants */
-        .restaurant-marker {
-            background: transparent;
-            width: 44px;
-            height: 60px;
-        }
-        .restaurant-marker .marker-pin {
-            width: 40px;
-            height: 40px;
-            background: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            transform: rotate(-45deg);
-            border-radius: 20px 20px 20px 0;
-            box-shadow: 0 3px 8px rgba(0,0,0,0.16);
-            border: 1px solid rgba(0,0,0,0.08);
-        }
-        .restaurant-marker .marker-dot {
-            width: 26px;
-            height: 26px;
-            background: #e74c3c;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-        }
-        .restaurant-marker .marker-dot svg {
-            width: 18px;
-            height: 18px;
-            display: block;
-            transform: rotate(45deg);
-            transform-origin: center;
-            fill: white;
-        }
-
-        /* Marqueurs incidents */
-        .incident-marker {
-            background: transparent;
-            width: 44px;
-            height: 60px;
-        }
-        .incident-marker .marker-pin {
-            width: 40px;
-            height: 40px;
-            background: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            transform: rotate(-45deg);
-            border-radius: 20px 20px 20px 0;
-            box-shadow: 0 3px 8px rgba(0,0,0,0.16);
-            border: 1px solid rgba(0,0,0,0.08);
-        }
-        .incident-marker .marker-dot {
-            width: 26px;
-            height: 26px;
-            background: #f39c12;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 14px;
-            transform: rotate(45deg);
         }
     </style>
-
 </head>
 
 <body>
-    <h1>Application Répartie - Carte de Nancy</h1>
+    <h1>Stations VélOstan'lib à Nancy</h1>
 
-    <nav class="tabs">
-        <button class="tab-btn active" onclick="openTab(event, 'map-tab')">Carte interactive</button>
-        <button class="tab-btn" onclick="openTab(event, 'report-tab')">Compte Rendu</button>
-    </nav>
-
-    <!-- ONGLET 1 : LA CARTE -->
-    <div id="map-tab" class="tab-content active">
-        <div id="message">
-            Chargement des stations...
-        </div>
-        <div id="map"></div>
+    <div id="message">
+        Chargement des stations...
     </div>
 
-    <!-- ONGLET 2 : LE COMPTE RENDU -->
-    <div id="report-tab" class="tab-content">
-        <h2>Compte rendu du Projet</h2>
-        <p>Ce projet s'inscrit dans la SAÉ d'Application Répartie. Il permet de visualiser sur une carte interactive Leaflet des données hétérogènes concernant la ville de Nancy, issues à la fois de données ouvertes publiques et d'une base de données privée via une architecture distribuée (RMI & Proxy HTTP).</p>
-
-        <p><strong>Dépôt Git :</strong> <a href="https://github.com/JassemMT/S4-IL-02-Projet_application_repartie" target="_blank">https://github.com/JassemMT/S4-IL-02-Projet_application_repartie</a></p>
-
-        <h2>1. Architecture de l'application</h2>
-        <p>L'application est composée d'une interface web cliente (TypeScript/Leaflet) qui interroge d'une part les API publiques en direct, et d'autre part un serveur Proxy Java (gérant le CORS). Ce Proxy fait le pont avec un service RMI, qui lui-même communique avec une base de données Oracle.</p>
-        
-        <div class="schema-container">
-            <img src="../Documents/architecture.png" alt="Schéma de l'architecture distribuée" style="max-width: 100%; height: auto; border-radius: 8px;">
-            <p><em>Schéma de l'architecture distribuée</em></p>
-        </div>
-
-        <h2>2. Ce qui a été réalisé</h2>
-        <ul>
-            <li><strong>Base de données (Oracle) :</strong> Création d'un schéma relationnel avec contraintes (Tables RESTAURANT, CRENEAU_TABLE, RESERVATION). Un jeu de données a été inséré avec les coordonnées GPS réelles sur Nancy.</li>
-            <li><strong>Service Backend RMI :</strong> Développement d'un service Java (<code>ServiceRestaurantImpl</code>) utilisant JDBC pour exposer deux méthodes distantes : la récupération des restaurants (format JSON), et la réservation d'une table. Les conflits concurrents sont gérés avec un <code>FOR UPDATE ... WAIT</code> sur la BDD.</li>
-            <li><strong>Serveur Proxy HTTP :</strong> Création d'une passerelle (avec <code>HttpServer</code>) permettant de résoudre les problèmes de sécurité du navigateur (CORS). Il expose les services RMI sous forme d'API REST accessibles par le frontend.</li>
-            <li><strong>Frontend (TypeScript / Leaflet) :</strong> Une carte interactive interrogeant de façon asynchrone (Fetch) l'API des VélOstan'lib pour afficher l'état des stations en temps réel avec des icônes SVG personnalisées.</li>
-            <li><strong>Client de test :</strong> Un client RMI indépendant a été codé pour valider le bon fonctionnement métier sans passer par l'interface web.</li>
-        </ul>
-
-        <h2>3. Technologies utilisées</h2>
-        <ul>
-            <li><strong>Frontend :</strong> HTML5, CSS3, TypeScript (compilé avec esbuild), Leaflet (Cartographie open-source).</li>
-            <li><strong>Backend :</strong> Java 17, Java RMI (Remote Method Invocation), <code>HttpServer</code> (pour le Proxy HTTP).</li>
-            <li><strong>Base de données :</strong> Oracle (Pilote ojdbc17), requêtes SQL préparées.</li>
-            <li><strong>Gestion de dépendances :</strong> Maven (pour le Java) et npm (pour le TypeScript).</li>
-        </ul>
-
-        <h2>4. Déploiement et Exécution</h2>
-        <p>Pour lancer l'application complètement, plusieurs terminaux sont nécessaires :</p>
-        
-        <h3>Étape A : Compilation du backend Java (Maven)</h3>
-        <p>À la racine du dossier RMI :</p>
-        <div class="code-block">cd RMI<br>mvn clean package</div>
-
-        <h3>Étape B : Lancement du Serveur RMI</h3>
-        <p>Depuis le dossier RMI, lancer le serveur (qui va tourner en continu) :</p>
-        <div class="code-block">
-            <!-- Remplacement des séparateurs selon l'OS (Windows vs Linux) -->
-            # Sur Windows :<br>
-            java -cp "service/target/rmi-service-1.0.jar;service/ojdbc17.jar" LancerServeur<br><br>
-            # Sur Linux / Mac (pour les machines de l'IUT) :<br>
-            java -cp "service/target/rmi-service-1.0.jar:service/ojdbc17.jar" LancerServeur
-        </div>
-
-        <h3>Étape C : Lancement du Proxy HTTP</h3>
-        <p>Dans un autre terminal, depuis le dossier RMI :</p>
-        <div class="code-block">java -jar proxy/target/rmi-proxy-1.0.jar</div>
-
-        <h3>Étape D : Test avec le Client RMI (Facultatif)</h3>
-        <p>Pour vérifier le service RMI via le terminal :</p>
-        <div class="code-block">java -jar client/target/rmi-client-1.0.jar</div>
-
-        <h3>Étape E : Compilation et Lancement du Frontend (Facultatif)</h3>
-        <p>Dans le dossier <code>carte-nancy</code>, recompiler le TypeScript (si des modifications sont faites) et ouvrir le site :</p>
-        <div class="code-block">
-            cd carte-nancy<br>
-            npm install<br>
-            npm run build
-        </div>
-        <p>Ensuite, placez le projet sur un serveur web local (comme Apache XAMPP ou Webetu) et accédez à <code>http://localhost/{chemin_du_projet}/carte-nancy/index.html</code> depuis votre navigateur.</p>
-
-    </div>
+    <div id="map"></div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="dist/app.js"></script>
-    
-    <!-- Script pour la gestion des onglets -->
-    <script>
-        function openTab(evt, tabName) {
-            // Cacher tous les onglets
-            var tabcontent = document.getElementsByClassName("tab-content");
-            for (var i = 0; i < tabcontent.length; i++) {
-                tabcontent[i].style.display = "none";
-                tabcontent[i].classList.remove("active");
-            }
-            
-            // Retirer la classe 'active' de tous les boutons
-            var tablinks = document.getElementsByClassName("tab-btn");
-            for (var i = 0; i < tablinks.length; i++) {
-                tablinks[i].classList.remove("active");
-            }
-            
-            // Afficher l'onglet actuel et ajouter la classe 'active'
-            var currentTab = document.getElementById(tabName);
-            currentTab.style.display = "block";
-            // Petit hack pour forcer Leaflet à se redimensionner quand l'onglet carte s'affiche
-            if (tabName === 'map-tab' && typeof map !== 'undefined') {
-                setTimeout(function(){ map.invalidateSize(); }, 100);
-            }
-            evt.currentTarget.classList.add("active");
-        }
-    </script>
+
+    <!-- config.js doit être chargé avant app.js -->
+    <script type="module" src="dist/app.js"></script>
 </body>
+
 </html>
