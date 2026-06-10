@@ -3,6 +3,8 @@ export interface ConfigurationInterface {
   stationInformationUrl: string;
   stationStatusUrl: string;
   proxyUrl: string;
+  incidentsUrl: string;
+
 }
 
 export const CONFIG: ConfigurationInterface = {
@@ -15,4 +17,8 @@ export const CONFIG: ConfigurationInterface = {
     "https://api.cyclocity.fr/contracts/nancy/gbfs/v2/station_status.json",
 
   proxyUrl: "http://localhost:8080",
+
+  incidentsUrl: 
+    "http://localhost:8080/incidents",
+
 };

@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "build": "esbuild src/app.ts --bundle --outfile=dist/app.js --format=esm --loader:.svg=text"
+    "build": "esbuild src/index.ts --bundle --outfile=dist/app.js --format=esm --loader:.svg=text"
   },
   "devDependencies": {
     "@types/leaflet": "^1.9.21",
