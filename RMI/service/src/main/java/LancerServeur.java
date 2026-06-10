@@ -7,6 +7,9 @@ public class LancerServeur {
 
     public static void main(String[] args) {
         try {
+            // Forcer l'IP locale pour éviter les problèmes de connexion RMI (Connection refused)
+            System.setProperty("java.rmi.server.hostname", "127.0.0.1");
+
             // Lecture du config.properties
             Properties props = new Properties();
             try (InputStream in = LancerServeur.class.getClassLoader().getResourceAsStream("config.properties")) {
