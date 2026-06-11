@@ -17,12 +17,19 @@ public class LancerServeur {
                 props.load(in);
             }
 
+            // Paramètres optionnels : LancerServeur [user] [password]
+            String dbUser = props.getProperty("db.user");
+            String dbPassword = props.getProperty("db.password");
+
+            if (args.length >= 1) dbUser = args[0];
+            if (args.length >= 2) dbPassword = args[1];
+
             int port = Integer.parseInt(props.getProperty("rmi.port", "1099"));
             String rmiName = props.getProperty("rmi.name", "serviceRestaurant");
 
             // Création de l'annuaire et enregistrement du service
             Registry registry = LocateRegistry.createRegistry(port);
-            ServiceRestaurantImpl service = new ServiceRestaurantImpl();
+            ServiceRestaurantImpl service = new ServiceRestaurantImpl(dbUser, dbPassword);
             registry.rebind(rmiName, service);
 
             System.out.println("Service RMI '" + rmiName + "' démarré sur le port " + port);

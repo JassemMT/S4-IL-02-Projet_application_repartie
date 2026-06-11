@@ -30,6 +30,10 @@ public class ServiceRestaurantImpl extends UnicastRemoteObject implements Servic
     private final String dbPassword;
 
     public ServiceRestaurantImpl() throws RemoteException {
+        this(null, null);
+    }
+
+    public ServiceRestaurantImpl(String dbUserOverride, String dbPasswordOverride) throws RemoteException {
         super();
         Properties props = new Properties();
 
@@ -49,8 +53,15 @@ public class ServiceRestaurantImpl extends UnicastRemoteObject implements Servic
         }
 
         dbUrl = props.getProperty("db.url");
-        dbUser = props.getProperty("db.user");
-        dbPassword = props.getProperty("db.password");
+
+        // Les paramètres CLI surchargent le fichier de config
+        dbUser = (dbUserOverride != null && !dbUserOverride.isBlank())
+                ? dbUserOverride
+                : props.getProperty("db.user");
+
+        dbPassword = (dbPasswordOverride != null && !dbPasswordOverride.isBlank())
+                ? dbPasswordOverride
+                : props.getProperty("db.password");
     }
 
     private Connection getConnection() throws SQLException {
