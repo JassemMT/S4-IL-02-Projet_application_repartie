@@ -94,6 +94,14 @@ java -cp "service/target/rmi-service-1.0.jar;service/ojdbc17.jar" LancerServeur
 java -cp "service/target/rmi-service-1.0.jar:service/ojdbc17.jar" LancerServeur
 ```
 
+Il est possible de surcharger les identifiants de la base de données (`db.user` et `db.password` du `config.properties`) directement en ligne de commande :
+
+```bash
+java -cp "service/target/rmi-service-1.0.jar;service/ojdbc17.jar" LancerServeur <user> <password>
+```
+
+> **Note :** Ces paramètres sont **optionnels**. S'ils ne sont pas fournis, les valeurs du fichier `config.properties` sont utilisées.
+
 Vous devriez voir :
 ```
 Service RMI 'serviceRestaurant' démarré sur le port 1099
