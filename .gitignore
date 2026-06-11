@@ -1,21 +1,16 @@
-# Fichiers compilés Java
+# ========================
+# Java / Maven
+# ========================
 *.class
-*.properties
-# Logs
 *.log
-
-# BlueJ
 *.ctxt
-
-# J2ME
 .mtj.tmp/
-
-# Artefacts de build Maven
 target/
+hs_err_pid*
+replay_pid*
 
-# Archives (sauf ojdbc17 vendorisé nécessaire à la compilation)
+# Archives (JARs, WARs, etc.)
 *.jar
-!ojdbc17.jar
 *.war
 *.nar
 *.ear
@@ -23,17 +18,44 @@ target/
 *.tar.gz
 *.rar
 
-# Crash logs JVM
-hs_err_pid*
-replay_pid*
+# Garder le driver
+!**/ojdbc17.jar
 
-# macOS
-.DS_Store
-
-# Node.js (frontend)
+# ========================
+# Node
+# ========================
 node_modules/
+dist/
+package-lock.json
 
+# ========================
+# fichiers OS
+# ========================
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# ========================
 # IDE
+# ========================
 .idea/
 *.iml
 .vscode/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.settings/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# ========================
+# Env / Secrets
+# ========================
+.env
+.env.*
