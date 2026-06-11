@@ -5,8 +5,25 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.util.Properties;
 
+/**
+ * Point d'entrée du serveur RMI.
+ * Crée un registre RMI, instancie le service {@link ServiceRestaurantImpl}
+ * et l'enregistre dans l'annuaire sous le nom configuré.
+ *
+ * <p>La configuration est lue depuis {@code config.properties} dans le classpath.
+ * Les identifiants de la base de données peuvent être surchargés via les arguments
+ * de la ligne de commande.</p>
+ *
+ * @see ServiceRestaurantImpl
+ */
 public class LancerServeur {
 
+    /**
+     * Lance le serveur RMI.
+     *
+     * @param args arguments optionnels : {@code [user] [password]}
+     *             pour surcharger les identifiants de la base de données.
+     */
     public static void main(String[] args) {
         try {
             // Lecture du config.properties

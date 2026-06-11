@@ -21,6 +21,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
+/**
+ * Implémentation du service RMI {@link ServiceRestaurant}.
+ * Fournit l'accès à la base de données Oracle pour la consultation
+ * des restaurants et la réservation de tables.
+ *
+ * <p>Chaque appel de méthode ouvre une connexion JDBC dédiée
+ * (pas de pool), adaptée à la charge d'un projet universitaire.</p>
+ *
+ * @see ServiceRestaurant
+ */
 public class ServiceRestaurantImpl extends UnicastRemoteObject implements ServiceRestaurant {
 
     private static final DateTimeFormatter DATE_FORMAT =
@@ -33,10 +43,24 @@ public class ServiceRestaurantImpl extends UnicastRemoteObject implements Servic
     private final String dbUser;
     private final String dbPassword;
 
+    /**
+     * Constructeur par défaut. Les identifiants de la base de données
+     * sont lus depuis {@code config.properties}.
+     *
+     * @throws RemoteException si l'exportation de l'objet distant échoue.
+     */
     public ServiceRestaurantImpl() throws RemoteException {
         this(null, null);
     }
 
+    /**
+     * Constructeur avec surcharge optionnelle des identifiants.
+     *
+     * @param dbUserOverride     utilisateur Oracle (ou {@code null} pour utiliser la config).
+     * @param dbPasswordOverride mot de passe Oracle (ou {@code null} pour utiliser la config).
+     * @throws RemoteException si l'exportation de l'objet distant échoue
+     *                         ou si la configuration est introuvable.
+     */
     public ServiceRestaurantImpl(String dbUserOverride, String dbPasswordOverride) throws RemoteException {
         super();
         Properties props = new Properties();
@@ -68,10 +92,22 @@ public class ServiceRestaurantImpl extends UnicastRemoteObject implements Servic
                 : props.getProperty("db.password");
     }
 
+    /**
+     * Ouvre une nouvelle connexion JDBC vers la base Oracle.
+     *
+     * @return une connexion JDBC active.
+     * @throws SQLException si la connexion échoue.
+     */
     private Connection getConnection() throws SQLException {
         return DriverManager.getConnection(dbUrl, dbUser, dbPassword);
     }
 
+    /**
+     * Échappe les caractères spéciaux pour une inclusion dans une chaîne JSON.
+     *
+     * @param value la valeur à échapper (peut être {@code null}).
+     * @return la valeur échappée, ou une chaîne vide si {@code null}.
+     */
     private static String jsonEscape(String value) {
         if (value == null) return "";
 
@@ -91,30 +127,28 @@ public class ServiceRestaurantImpl extends UnicastRemoteObject implements Servic
                 + jsonString(message) + "}";
     }
 
+    /**
+     * Vérifie si l'exception SQL correspond à un timeout de verrou Oracle (ORA-30006).
+     *
+     * @param e l'exception SQL à tester.
+     * @return {@code true} si c'est un timeout de verrou.
+     */
     private static boolean lockTimeout(SQLException e) {
         return e.getErrorCode() == 30006;
     }
 
-    /*
-        La table RESERVATION est verrouillée avant MAX + 1.
-
-        Cela empêche deux clients de générer le même
-        NUM_RESERVATION au même moment.
-    */
-
+    /**
+     * Génère le prochain identifiant de réservation
+     * via la séquence Oracle {@code SEQ_RESERVATION}.
+     *
+     * @param con la connexion JDBC active (dans une transaction).
+     * @return le prochain numéro de réservation.
+     * @throws SQLException si la requête échoue.
+     */
     private static int nextReservationId(Connection con)
             throws SQLException {
 
-        try (Statement statement = con.createStatement()) {
-            statement.execute(
-                "LOCK TABLE RESERVATION "
-              + "IN EXCLUSIVE MODE WAIT 5"
-            );
-        }
-
-        String sql =
-            "SELECT NVL(MAX(NUM_RESERVATION), 0) + 1 "
-          + "FROM RESERVATION";
+        String sql = "SELECT SEQ_RESERVATION.NEXTVAL FROM DUAL";
 
         try (PreparedStatement ps = con.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {

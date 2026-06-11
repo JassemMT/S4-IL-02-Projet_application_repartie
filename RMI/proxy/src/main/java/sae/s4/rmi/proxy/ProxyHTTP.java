@@ -24,7 +24,12 @@ import com.sun.net.httpserver.HttpServer;
  */
 public class ProxyHTTP {
 
-    /** Ajoute les headers CORS à toute réponse. */
+    /**
+     * Ajoute les headers CORS (Cross-Origin Resource Sharing) à la réponse.
+     * Autorise toutes les origines, les méthodes GET/POST/OPTIONS et le header Content-Type.
+     *
+     * @param exchange l'échange HTTP en cours.
+     */
     private static void addCorsHeaders(HttpExchange exchange) {
         exchange.getResponseHeaders().set("Access-Control-Allow-Origin", "*");
         exchange.getResponseHeaders().set("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
@@ -32,7 +37,12 @@ public class ProxyHTTP {
     }
 
     /**
-     * Gère le preflight CORS (OPTIONS). Retourne true si la requête était OPTIONS
+     * Gère les requêtes preflight CORS (méthode OPTIONS).
+     * Si la requête est un preflight, envoie une réponse 204 et retourne {@code true}.
+     *
+     * @param exchange l'échange HTTP en cours.
+     * @return {@code true} si la requête était un preflight OPTIONS (déjà traitée).
+     * @throws java.io.IOException en cas d'erreur d'écriture de la réponse.
      */
     private static boolean handleOptions(HttpExchange exchange) throws java.io.IOException {
         if ("OPTIONS".equalsIgnoreCase(exchange.getRequestMethod())) {
@@ -43,7 +53,14 @@ public class ProxyHTTP {
         return false;
     }
 
-    /** Envoie une réponse JSON avec les headers CORS. */
+    /**
+     * Envoie une réponse JSON avec les headers CORS.
+     *
+     * @param exchange   l'échange HTTP en cours.
+     * @param statusCode le code de statut HTTP (200, 400, 500…).
+     * @param json       le corps de la réponse au format JSON.
+     * @throws java.io.IOException en cas d'erreur d'écriture.
+     */
     private static void sendJson(HttpExchange exchange, int statusCode, String json) throws java.io.IOException {
         addCorsHeaders(exchange);
         byte[] response = json.getBytes(java.nio.charset.StandardCharsets.UTF_8);
@@ -54,7 +71,13 @@ public class ProxyHTTP {
         }
     }
 
-    /** Extrait la valeur d'un paramètre de requête GET (ex: "?idRestaurant=3"). */
+    /**
+     * Extrait la valeur d'un paramètre de requête GET (query string).
+     *
+     * @param exchange l'échange HTTP contenant l'URI de la requête.
+     * @param param    le nom du paramètre à extraire (ex: {@code "idRestaurant"}).
+     * @return la valeur du paramètre, ou {@code null} s'il est absent.
+     */
     private static String getQueryParam(HttpExchange exchange, String param) {
         String query = exchange.getRequestURI().getQuery();
         if (query == null) return null;
@@ -65,6 +88,14 @@ public class ProxyHTTP {
         return null;
     }
 
+    /**
+     * Point d'entrée du proxy HTTP.
+     * Charge la configuration, se connecte au service RMI distant,
+     * puis démarre un serveur HTTP exposant les endpoints REST
+     * {@code /restaurants}, {@code /reserver} et {@code /incidents}.
+     *
+     * @param args non utilisés.
+     */
     public static void main(String[] args) {
 
         // --- Chargement de la configuration ---
