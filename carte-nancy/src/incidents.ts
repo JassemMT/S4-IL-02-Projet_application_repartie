@@ -23,9 +23,8 @@ function createIncidentIcon(): L.DivIcon {
 
 function afficherIncident(incident: IncidentInterface): void {
     const coords = incident.location.polyline.split(" ");
-    // L'API Waze renvoie les coordonnées au format "longitude latitude"
-    const lng = parseFloat(coords[0]);
-    const lat = parseFloat(coords[1]);
+    const lat = parseFloat(coords[0]);
+    const lng = parseFloat(coords[1]);
 
     const dateDebut = new Date(incident.starttime).toLocaleDateString("fr-FR");
     const dateFin = new Date(incident.endtime).toLocaleDateString("fr-FR");

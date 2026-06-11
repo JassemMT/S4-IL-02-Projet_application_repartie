@@ -86,10 +86,64 @@ function verifierReponse2(response) {
   return response;
 }
 function afficherRestaurant(restaurant) {
-  L.marker([restaurant.lat, restaurant.lng], { icon: createRestaurantIcon() }).addTo(map).bindPopup(`
-            <strong>${restaurant.nom}</strong><br><br>
-            Adresse : ${restaurant.adresse}
-        `);
+  const popupContent = document.createElement("div");
+  popupContent.innerHTML = `
+        <div style="font-family: Arial, sans-serif;">
+            <strong style="color: #333; font-size: 14px;">${restaurant.nom}</strong><br>
+            <span style="font-size: 12px; color: #666;">${restaurant.adresse}</span>
+            <hr style="border: 0; border-top: 1px solid #ccc; margin: 10px 0;">
+            <form id="form-resa-${restaurant.id}" style="display: flex; flex-direction: column; gap: 5px;">
+                <input type="text" name="nom" placeholder="Nom" required style="padding: 4px; font-size: 12px;">
+                <input type="text" name="prenom" placeholder="Pr\xE9nom" required style="padding: 4px; font-size: 12px;">
+                <input type="tel" name="telephone" placeholder="T\xE9l\xE9phone" required style="padding: 4px; font-size: 12px;">
+                <input type="number" name="convives" placeholder="Nb convives" min="1" max="20" required style="padding: 4px; font-size: 12px;">
+                <div style="display: flex; gap: 5px;">
+                    <input type="date" name="date" required style="padding: 4px; font-size: 12px; flex: 1;">
+                    <input type="time" name="heure" required style="padding: 4px; font-size: 12px; width: 80px;">
+                </div>
+                <button type="submit" style="margin-top: 5px; padding: 6px; background-color: #277d4a; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px;">R\xE9server</button>
+                <div id="msg-resa-${restaurant.id}" style="font-size: 12px; text-align: center; margin-top: 5px; min-height: 15px;"></div>
+            </form>
+        </div>
+    `;
+  popupContent.querySelector("form")?.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const form = e.target;
+    const msgDiv = popupContent.querySelector(`#msg-resa-${restaurant.id}`);
+    const btn = form.querySelector("button");
+    msgDiv.textContent = "R\xE9servation en cours...";
+    msgDiv.style.color = "#333";
+    btn.disabled = true;
+    const payload = {
+      idRestaurant: restaurant.id,
+      nom: form.elements.namedItem("nom").value,
+      prenom: form.elements.namedItem("prenom").value,
+      telephone: form.elements.namedItem("telephone").value,
+      convives: parseInt(form.elements.namedItem("convives").value, 10),
+      date: form.elements.namedItem("date").value,
+      heure: form.elements.namedItem("heure").value
+    };
+    fetch(`${CONFIG.proxyUrl}/reserver`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    }).then(verifierReponse2).then((r) => r.json()).then((res) => {
+      if (res.status === "ok") {
+        msgDiv.textContent = "R\xE9servation confirm\xE9e !";
+        msgDiv.style.color = "green";
+        form.reset();
+      } else {
+        msgDiv.textContent = res.message || "Erreur serveur";
+        msgDiv.style.color = "red";
+      }
+      btn.disabled = false;
+    }).catch((err) => {
+      msgDiv.textContent = "Connexion au proxy \xE9chou\xE9e";
+      msgDiv.style.color = "red";
+      btn.disabled = false;
+    });
+  });
+  L.marker([restaurant.lat, restaurant.lng], { icon: createRestaurantIcon() }).addTo(map).bindPopup(popupContent);
 }
 function afficherRestaurants(restaurants) {
   for (const restaurant of restaurants) {
