@@ -1,3 +1,7 @@
+package sae.s4.rmi.client;
+
+import sae.s4.rmi.common.ServiceRestaurant;
+
 import java.io.InputStream;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;

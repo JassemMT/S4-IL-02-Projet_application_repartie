@@ -17,10 +17,15 @@
     <packaging>jar</packaging>
 
     <properties>
-        <main.class>LancerServeur</main.class>
+        <main.class>sae.s4.rmi.service.LancerServeur</main.class>
     </properties>
 
     <dependencies>
+        <dependency>
+            <groupId>sae.s4</groupId>
+            <artifactId>rmi-common</artifactId>
+            <version>1.0</version>
+        </dependency>
         <dependency>
             <groupId>com.oracle</groupId>
             <artifactId>ojdbc17</artifactId>

@@ -1,3 +1,5 @@
+package sae.s4.rmi.common;
+
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 

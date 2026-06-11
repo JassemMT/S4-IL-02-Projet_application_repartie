@@ -1,3 +1,5 @@
+package sae.s4.rmi.service;
+
 import java.io.InputStream;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -7,15 +9,16 @@ public class LancerServeur {
 
     public static void main(String[] args) {
         try {
-            // Forcer l'IP locale pour éviter les problèmes de connexion RMI (Connection refused)
-            System.setProperty("java.rmi.server.hostname", "127.0.0.1");
-
             // Lecture du config.properties
             Properties props = new Properties();
             try (InputStream in = LancerServeur.class.getClassLoader().getResourceAsStream("config.properties")) {
                 if (in == null) throw new RuntimeException("config.properties introuvable");
                 props.load(in);
             }
+
+            // Hostname RMI configurable (pas d'IP codée en dur)
+            String rmiHostname = props.getProperty("rmi.hostname", "127.0.0.1");
+            System.setProperty("java.rmi.server.hostname", rmiHostname);
 
             // Paramètres optionnels : LancerServeur [user] [password]
             String dbUser = props.getProperty("db.user");

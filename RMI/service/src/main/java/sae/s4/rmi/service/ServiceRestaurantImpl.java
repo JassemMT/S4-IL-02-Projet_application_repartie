@@ -1,3 +1,7 @@
+package sae.s4.rmi.service;
+
+import sae.s4.rmi.common.ServiceRestaurant;
+
 import java.io.InputStream;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
