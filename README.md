@@ -86,18 +86,18 @@ Depuis le dossier `RMI` :
 
 **Windows :**
 ```bash
-java -cp "service/target/rmi-service-1.0.jar;service/ojdbc17.jar" LancerServeur
+java -cp "service/target/rmi-service-1.0.jar;service/ojdbc17.jar" sae.s4.rmi.service.LancerServeur
 ```
 
 **Linux / macOS :**
 ```bash
-java -cp "service/target/rmi-service-1.0.jar:service/ojdbc17.jar" LancerServeur
+java -cp "service/target/rmi-service-1.0.jar:service/ojdbc17.jar" sae.s4.rmi.service.LancerServeur
 ```
 
 Il est possible de surcharger les identifiants de la base de données (`db.user` et `db.password` du `config.properties`) directement en ligne de commande :
 
 ```bash
-java -cp "service/target/rmi-service-1.0.jar;service/ojdbc17.jar" LancerServeur <user> <password>
+java -cp "service/target/rmi-service-1.0.jar;service/ojdbc17.jar" sae.s4.rmi.service.LancerServeur <user> <password>
 ```
 
 > **Note :** Ces paramètres sont **optionnels**. S'ils ne sont pas fournis, les valeurs du fichier `config.properties` sont utilisées.
@@ -117,6 +117,7 @@ Le fichier `RMI/service/src/main/resources/config.properties` contient :
 | `db.url`       | URL JDBC de la base Oracle          | *(à adapter)*               |
 | `db.user`      | Utilisateur Oracle                  | *(à adapter)*               |
 | `db.password`  | Mot de passe Oracle                 | *(à adapter)*               |
+| `rmi.hostname` | Hostname RMI (java.rmi.server.hostname) | `127.0.0.1`               |
 | `rmi.port`     | Port du registre RMI                | `1099`                      |
 | `rmi.name`     | Nom du service dans le registre     | `serviceRestaurant`         |
 
@@ -215,23 +216,24 @@ Puis déposer le contenu du dossier `carte-nancy/` sur Webetu (via SFTP ou le ge
 .
 ├── RMI/                          # Backend Java (Maven multi-modules)
 │   ├── pom.xml                   # POM parent
+│   ├── common/                   # Module interface RMI partagée
+│   │   ├── pom.xml
+│   │   └── src/main/java/sae/s4/rmi/common/
+│   │       └── ServiceRestaurant.java        # Interface RMI (unique)
 │   ├── service/                  # Module serveur RMI
 │   │   ├── pom.xml
 │   │   ├── ojdbc17.jar           # Driver Oracle (vendorisé)
-│   │   └── src/main/java/
+│   │   └── src/main/java/sae/s4/rmi/service/
 │   │       ├── LancerServeur.java
-│   │       ├── ServiceRestaurant.java        # Interface RMI
 │   │       └── ServiceRestaurantImpl.java    # Implémentation (JDBC + Oracle)
 │   ├── proxy/                    # Module proxy HTTP
 │   │   ├── pom.xml
-│   │   └── src/main/java/
-│   │       ├── ProxyHTTP.java               # Serveur HTTP (CORS + REST → RMI)
-│   │       └── ServiceRestaurant.java       # Interface RMI (partagée)
+│   │   └── src/main/java/sae/s4/rmi/proxy/
+│   │       └── ProxyHTTP.java               # Serveur HTTP (CORS + REST → RMI)
 │   └── client/                   # Module client de test RMI
 │       ├── pom.xml
-│       └── src/main/java/
-│           ├── LancerClient.java
-│           └── ServiceRestaurant.java       # Interface RMI (partagée)
+│       └── src/main/java/sae/s4/rmi/client/
+│           └── LancerClient.java
 ├── carte-nancy/                  # Frontend (TypeScript + Leaflet)
 │   ├── index.html
 │   ├── package.json
