@@ -1,6 +1,6 @@
 /// <reference types="leaflet" />
 
-import { map } from "./index";
+import { map, onSourceLoaded, onSourceError } from "./index";
 import { CONFIG } from "./config";
 import { IncidentInterface, IncidentsResponseInterface } from "./types";
 
@@ -40,16 +40,25 @@ function afficherIncident(incident: IncidentInterface): void {
 }
 
 function afficherIncidents(data: IncidentsResponseInterface): void {
+    const sidebarItems: { name: string; lat: number; lng: number }[] = [];
     for (const incident of data.incidents) {
         afficherIncident(incident);
+        const coords = incident.location.polyline.split(" ");
+        sidebarItems.push({
+            name: incident.short_description,
+            lat: parseFloat(coords[0]),
+            lng: parseFloat(coords[1])
+        });
     }
     console.log(`${data.incidents.length} incidents chargés.`);
+    onSourceLoaded("incidents", sidebarItems);
 }
 
 function afficherErreur(erreur: unknown): void {
     if (erreur instanceof Error) {
         console.error("Impossible de charger les incidents :", erreur.message);
     }
+    onSourceError("incidents");
 }
 
 fetch(`${CONFIG.proxyUrl}/incidents`)

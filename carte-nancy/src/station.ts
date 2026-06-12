@@ -1,7 +1,7 @@
 /// <reference types="leaflet" />
 
 import { CONFIG } from "./config";
-import { map } from "./index";
+import { map, onSourceLoaded, onSourceError } from "./index";
 import logoSvg from "../img/velo-meca.svg";
 import {
     StationInformationInterface,
@@ -65,18 +65,24 @@ function afficherStations(
     const stations = reponses[0].data.stations;
     const disponibilites = reponses[1].data.stations;
 
+    const sidebarItems: { name: string; lat: number; lng: number }[] = [];
+
     for (const station of stations) {
         const disponibilite = chercherDisponibilite(station.station_id, disponibilites);
         if (disponibilite !== undefined) {
             afficherStation(station, disponibilite);
+            sidebarItems.push({ name: station.name, lat: station.lat, lng: station.lon });
         }
     }
+
+    onSourceLoaded("velos", sidebarItems);
 }
 
 function afficherErreur(erreur: unknown): void {
     if (erreur instanceof Error) {
         console.log(erreur.message);
     }
+    onSourceError("velos");
 }
 
 const informationsPromise = fetch(CONFIG.stationInformationUrl)

@@ -1,6 +1,6 @@
 /// <reference types="leaflet" />
 
-import { map } from "./index";
+import { map, onSourceLoaded, onSourceError } from "./index";
 import { CONFIG } from "./config";
 import restaurantSvg from "../img/restaurant-icon.svg";
 import { RestaurantInterface } from "./types";
@@ -95,14 +95,17 @@ function afficherRestaurant(restaurant: RestaurantInterface): void {
 }
 
 function afficherRestaurants(restaurants: RestaurantInterface[]): void {
+    const sidebarItems: { name: string; lat: number; lng: number }[] = [];
     for (const restaurant of restaurants) {
         afficherRestaurant(restaurant);
+        sidebarItems.push({ name: restaurant.nom, lat: restaurant.lat, lng: restaurant.lng });
     }
     console.log(`${restaurants.length} restaurants chargés.`);
+    onSourceLoaded("restaurants", sidebarItems);
 }
 
 fetch(`${CONFIG.proxyUrl}/restaurants`)
     .then(verifierReponse)
     .then((r) => r.json() as Promise<RestaurantInterface[]>)
     .then(afficherRestaurants)
-    .catch((e) => console.error("Impossible de charger les restaurants :", e));
+    .catch((e) => { console.error("Impossible de charger les restaurants :", e); onSourceError("restaurants"); });

@@ -50,17 +50,21 @@ function afficherStation(station, disponibilite) {
 function afficherStations(reponses) {
   const stations = reponses[0].data.stations;
   const disponibilites = reponses[1].data.stations;
+  const sidebarItems = [];
   for (const station of stations) {
     const disponibilite = chercherDisponibilite(station.station_id, disponibilites);
     if (disponibilite !== void 0) {
       afficherStation(station, disponibilite);
+      sidebarItems.push({ name: station.name, lat: station.lat, lng: station.lon });
     }
   }
+  onSourceLoaded("velos", sidebarItems);
 }
 function afficherErreur(erreur) {
   if (erreur instanceof Error) {
     console.log(erreur.message);
   }
+  onSourceError("velos");
 }
 var informationsPromise = fetch(CONFIG.stationInformationUrl).then(verifierReponse).then((r) => r.json());
 var disponibilitesPromise = fetch(CONFIG.stationStatusUrl).then(verifierReponse).then((r) => r.json());
@@ -146,12 +150,18 @@ function afficherRestaurant(restaurant) {
   L.marker([restaurant.lat, restaurant.lng], { icon: createRestaurantIcon() }).addTo(map).bindPopup(popupContent);
 }
 function afficherRestaurants(restaurants) {
+  const sidebarItems = [];
   for (const restaurant of restaurants) {
     afficherRestaurant(restaurant);
+    sidebarItems.push({ name: restaurant.nom, lat: restaurant.lat, lng: restaurant.lng });
   }
   console.log(`${restaurants.length} restaurants charg\xE9s.`);
+  onSourceLoaded("restaurants", sidebarItems);
 }
-fetch(`${CONFIG.proxyUrl}/restaurants`).then(verifierReponse2).then((r) => r.json()).then(afficherRestaurants).catch((e) => console.error("Impossible de charger les restaurants :", e));
+fetch(`${CONFIG.proxyUrl}/restaurants`).then(verifierReponse2).then((r) => r.json()).then(afficherRestaurants).catch((e) => {
+  console.error("Impossible de charger les restaurants :", e);
+  onSourceError("restaurants");
+});
 
 // src/incidents.ts
 function verifierReponse3(response) {
@@ -183,15 +193,24 @@ function afficherIncident(incident) {
         `);
 }
 function afficherIncidents(data) {
+  const sidebarItems = [];
   for (const incident of data.incidents) {
     afficherIncident(incident);
+    const coords = incident.location.polyline.split(" ");
+    sidebarItems.push({
+      name: incident.short_description,
+      lat: parseFloat(coords[0]),
+      lng: parseFloat(coords[1])
+    });
   }
   console.log(`${data.incidents.length} incidents charg\xE9s.`);
+  onSourceLoaded("incidents", sidebarItems);
 }
 function afficherErreur2(erreur) {
   if (erreur instanceof Error) {
     console.error("Impossible de charger les incidents :", erreur.message);
   }
+  onSourceError("incidents");
 }
 fetch(`${CONFIG.proxyUrl}/incidents`).then(verifierReponse3).then((r) => r.json()).then(afficherIncidents).catch(afficherErreur2);
 
@@ -204,6 +223,57 @@ L.tileLayer(CONFIG.tileLayerUrl, {
   maxZoom: 19,
   attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
 }).addTo(map);
+var sidebarData = { velos: [], restaurants: [], incidents: [] };
+var loadedCount = 0;
+var TOTAL_SOURCES = 3;
+function checkAllLoaded() {
+  loadedCount++;
+  if (loadedCount >= TOTAL_SOURCES) {
+    const msgEl = document.getElementById("message");
+    if (msgEl) {
+      msgEl.style.display = "none";
+    }
+    renderSidebar();
+  }
+}
+function renderSidebar() {
+  const buildList = (items, containerId) => {
+    const ul = document.getElementById(containerId);
+    if (!ul) return;
+    ul.innerHTML = "";
+    if (items.length === 0) {
+      ul.innerHTML = "<li class='sidebar-empty'>Aucun \xE9l\xE9ment</li>";
+      return;
+    }
+    for (const item of items) {
+      const li = document.createElement("li");
+      li.textContent = item.name;
+      li.title = item.name;
+      li.addEventListener("click", () => {
+        map.setView([item.lat, item.lng], 17);
+      });
+      ul.appendChild(li);
+    }
+  };
+  const countVelos = document.getElementById("count-velos");
+  const countRestos = document.getElementById("count-restos");
+  const countIncidents = document.getElementById("count-incidents");
+  if (countVelos) countVelos.textContent = `(${sidebarData.velos.length})`;
+  if (countRestos) countRestos.textContent = `(${sidebarData.restaurants.length})`;
+  if (countIncidents) countIncidents.textContent = `(${sidebarData.incidents.length})`;
+  buildList(sidebarData.velos, "list-velos");
+  buildList(sidebarData.restaurants, "list-restos");
+  buildList(sidebarData.incidents, "list-incidents");
+}
+function onSourceLoaded(source, items) {
+  sidebarData[source] = items;
+  checkAllLoaded();
+}
+function onSourceError(source) {
+  checkAllLoaded();
+}
 export {
-  map
+  map,
+  onSourceError,
+  onSourceLoaded
 };

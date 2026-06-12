@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -27,7 +28,86 @@
 
         #map {
             height: calc(100vh - 100px);
-            width: 100%;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .map-container {
+            display: flex;
+            height: calc(100vh - 100px);
+        }
+
+        /* Sidebar */
+        #sidebar {
+            width: 260px;
+            min-width: 260px;
+            height: calc(100vh - 100px);
+            overflow-y: auto;
+            background: #f7f7f7;
+            border-left: 1px solid #ddd;
+            font-size: 13px;
+        }
+
+        .sidebar-category {
+            border-bottom: 1px solid #ddd;
+        }
+
+        .sidebar-category h3 {
+            margin: 0;
+            padding: 10px 12px;
+            font-size: 13px;
+            background: #eee;
+            cursor: pointer;
+            user-select: none;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .sidebar-category h3 .cat-icon {
+            font-size: 15px;
+        }
+
+        .sidebar-category h3 .cat-count {
+            margin-left: auto;
+            font-weight: normal;
+            color: #888;
+            font-size: 12px;
+        }
+
+        .sidebar-category ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .sidebar-category ul.collapsed {
+            display: none;
+        }
+
+        .sidebar-category li {
+            padding: 6px 12px;
+            cursor: pointer;
+            border-bottom: 1px solid #eee;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .sidebar-category li:hover {
+            background: #e2e2e2;
+        }
+
+        .sidebar-category li.sidebar-empty {
+            color: #999;
+            font-style: italic;
+            cursor: default;
+        }
+
+        .sidebar-category li.sidebar-empty:hover {
+            background: transparent;
         }
 
         /*  styles marqueurs vélos  */
@@ -78,6 +158,7 @@
             width: 44px;
             height: 60px;
         }
+
         .restaurant-marker .marker-pin {
             width: 40px;
             height: 40px;
@@ -88,9 +169,10 @@
             position: relative;
             transform: rotate(-45deg);
             border-radius: 20px 20px 20px 0;
-            box-shadow: 0 3px 8px rgba(0,0,0,0.16);
-            border: 1px solid rgba(0,0,0,0.08);
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.16);
+            border: 1px solid rgba(0, 0, 0, 0.08);
         }
+
         .restaurant-marker .marker-dot {
             width: 26px;
             height: 26px;
@@ -101,6 +183,7 @@
             justify-content: center;
             overflow: hidden;
         }
+
         .restaurant-marker .marker-dot svg {
             width: 18px;
             height: 18px;
@@ -116,6 +199,7 @@
             width: 44px;
             height: 60px;
         }
+
         .incident-marker .marker-pin {
             width: 40px;
             height: 40px;
@@ -126,9 +210,10 @@
             position: relative;
             transform: rotate(-45deg);
             border-radius: 20px 20px 20px 0;
-            box-shadow: 0 3px 8px rgba(0,0,0,0.16);
-            border: 1px solid rgba(0,0,0,0.08);
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.16);
+            border: 1px solid rgba(0, 0, 0, 0.08);
         }
+
         .incident-marker .marker-dot {
             width: 26px;
             height: 26px;
@@ -185,13 +270,40 @@
             margin: auto;
             line-height: 1.6;
         }
-        
-        #report-tab h2 { color: #277d4a; border-bottom: 2px solid #277d4a; padding-bottom: 5px; }
-        #report-tab h3 { color: #333; margin-top: 20px; }
-        .code-block { background-color: #f4f4f4; border-left: 4px solid #277d4a; padding: 10px; font-family: monospace; overflow-x: auto; margin-bottom: 15px;}
-        .highlight { font-weight: bold; color: #d32f2f; }
-        .schema-container { text-align: center; margin: 30px 0; padding: 20px; background-color: #fff; border: 1px solid #ddd; border-radius: 8px; }
 
+        #report-tab h2 {
+            color: #277d4a;
+            border-bottom: 2px solid #277d4a;
+            padding-bottom: 5px;
+        }
+
+        #report-tab h3 {
+            color: #333;
+            margin-top: 20px;
+        }
+
+        .code-block {
+            background-color: #f4f4f4;
+            border-left: 4px solid #277d4a;
+            padding: 10px;
+            font-family: monospace;
+            overflow-x: auto;
+            margin-bottom: 15px;
+        }
+
+        .highlight {
+            font-weight: bold;
+            color: #d32f2f;
+        }
+
+        .schema-container {
+            text-align: center;
+            margin: 30px 0;
+            padding: 20px;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
     </style>
 </head>
 
@@ -208,80 +320,387 @@
         <div id="message">
             Chargement des stations...
         </div>
-        <div id="map"></div>
+        <div class="map-container">
+            <div id="map"></div>
+            <div id="sidebar">
+                <div class="sidebar-category">
+                    <h3 onclick="toggleCategory('list-velos', this)"><span class="cat-icon"></span> Vélos <span
+                            id="count-velos" class="cat-count"></span></h3>
+                    <ul id="list-velos">
+                        <li class="sidebar-empty">Chargement...</li>
+                    </ul>
+                </div>
+                <div class="sidebar-category">
+                    <h3 onclick="toggleCategory('list-restos', this)"><span class="cat-icon"></span> Restaurants <span
+                            id="count-restos" class="cat-count"></span></h3>
+                    <ul id="list-restos">
+                        <li class="sidebar-empty">Chargement...</li>
+                    </ul>
+                </div>
+                <div class="sidebar-category">
+                    <h3 onclick="toggleCategory('list-incidents', this)"><span class="cat-icon"></span> Incidents <span
+                            id="count-incidents" class="cat-count"></span></h3>
+                    <ul id="list-incidents">
+                        <li class="sidebar-empty">Chargement...</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- ONGLET 2 : LE COMPTE RENDU -->
     <div id="report-tab" class="tab-content">
         <h2>Compte rendu du Projet</h2>
-        <p>Ce projet s'inscrit dans la SAÉ d'Application Répartie. Il permet de visualiser sur une carte interactive Leaflet des données hétérogènes concernant la ville de Nancy, issues à la fois de données ouvertes publiques et d'une base de données privée via une architecture distribuée (RMI & Proxy HTTP).</p>
+        <p>Ce projet s'inscrit dans la SAÉ d'Application Répartie. Il permet de visualiser sur une carte interactive
+            Leaflet des données hétérogènes concernant la ville de Nancy, issues à la fois de données ouvertes publiques
+            et d'une base de données privée via une architecture distribuée (RMI &amp; Proxy HTTP).</p>
 
-        <p><strong>Dépôt Git :</strong> <a href="https://github.com/JassemMT/S4-IL-02-Projet_application_repartie" target="_blank">https://github.com/JassemMT/S4-IL-02-Projet_application_repartie</a></p>
+        <p><strong>Dépôt Git :</strong> <a href="https://github.com/JassemMT/S4-IL-02-Projet_application_repartie"
+                target="_blank">https://github.com/JassemMT/S4-IL-02-Projet_application_repartie</a></p>
 
         <h2>1. Architecture de l'application</h2>
-        <p>L'application est composée d'une interface web cliente (TypeScript/Leaflet) qui interroge d'une part les API publiques en direct, et d'autre part un serveur Proxy Java (gérant le CORS). Ce Proxy fait le pont avec un service RMI, qui lui-même communique avec une base de données Oracle.</p>
-        
+        <p>L'application est composée d'une interface web cliente (TypeScript/Leaflet) qui interroge d'une part les API
+            publiques en direct, et d'autre part un serveur Proxy Java (gérant le CORS). Ce Proxy fait le pont avec un
+            service RMI, qui lui-même communique avec une base de données Oracle.</p>
+
         <div class="schema-container">
-            <img src="../Documents/architecture.png" alt="Schéma de l'architecture distribuée" style="max-width: 100%; height: auto; border-radius: 8px;">
+            <img src="../Documents/architecture.png" alt="Schéma de l'architecture distribuée"
+                style="max-width: 100%; height: auto; border-radius: 8px;">
             <p><em>Schéma de l'architecture distribuée</em></p>
         </div>
 
+        <div class="code-block" style="text-align: left; white-space: pre; font-size: 12px; line-height: 1.4;">Frontend
+            (TS/Leaflet) ──HTTP──► Proxy HTTP (Java) ──RMI──► Serveur RMI (Java) ──JDBC──► Oracle DB
+            port 8080 port 1099</div>
+
+        <ul>
+            <li><strong>Frontend :</strong> carte interactive Leaflet en TypeScript, compilée avec esbuild</li>
+            <li><strong>Proxy HTTP :</strong> passerelle Java (<code>HttpServer</code>) résolvant le CORS entre le
+                navigateur et les services RMI</li>
+            <li><strong>Serveur RMI :</strong> service Java exposant les méthodes <code>getRestaurants()</code> et
+                <code>reserverTable(...)</code> via RMI</li>
+            <li><strong>Base de données :</strong> Oracle, avec les tables <code>RESTAURANT</code>,
+                <code>TABLE_RESTAURANT</code>, <code>CRENEAU_TABLE</code>, <code>RESERVATION</code>, <code>PLAT</code>,
+                <code>COMMANDE</code>, <code>CONTIENT</code></li>
+        </ul>
+
         <h2>2. Ce qui a été réalisé</h2>
         <ul>
-            <li><strong>Base de données (Oracle) :</strong> Création d'un schéma relationnel avec contraintes (Tables RESTAURANT, CRENEAU_TABLE, RESERVATION). Un jeu de données a été inséré avec les coordonnées GPS réelles sur Nancy.</li>
-            <li><strong>Service Backend RMI :</strong> Développement d'un service Java (<code>ServiceRestaurantImpl</code>) utilisant JDBC pour exposer deux méthodes distantes : la récupération des restaurants (format JSON), et la réservation d'une table. Les conflits concurrents sont gérés avec un <code>FOR UPDATE ... WAIT</code> sur la BDD.</li>
-            <li><strong>Serveur Proxy HTTP :</strong> Création d'une passerelle (avec <code>HttpServer</code>) permettant de résoudre les problèmes de sécurité du navigateur (CORS). Il expose les services RMI sous forme d'API REST accessibles par le frontend.</li>
-            <li><strong>Frontend (TypeScript / Leaflet) :</strong> Une carte interactive interrogeant de façon asynchrone (Fetch) l'API des VélOstan'lib pour afficher l'état des stations en temps réel avec des icônes SVG personnalisées.</li>
-            <li><strong>Client de test :</strong> Un client RMI indépendant a été codé pour valider le bon fonctionnement métier sans passer par l'interface web.</li>
+            <li><strong>Base de données (Oracle) :</strong> Création d'un schéma relationnel avec contraintes (Tables
+                RESTAURANT, TABLE_RESTAURANT, CRENEAU_TABLE, RESERVATION, PLAT, COMMANDE, CONTIENT). Un jeu de données a
+                été inséré avec les coordonnées GPS réelles
+                sur Nancy.</li>
+            <li><strong>Service Backend RMI :</strong> Développement d'un service Java
+                (<code>ServiceRestaurantImpl</code>) utilisant JDBC pour exposer deux méthodes distantes : la
+                récupération des restaurants (format JSON), et la réservation d'une table. Les conflits concurrents sont
+                gérés avec un <code>FOR UPDATE ... WAIT</code> sur la BDD.</li>
+            <li><strong>Serveur Proxy HTTP :</strong> Création d'une passerelle (avec <code>HttpServer</code>)
+                permettant de résoudre les problèmes de sécurité du navigateur (CORS). Il expose les services RMI sous
+                forme d'API REST accessibles par le frontend.</li>
+            <li><strong>Frontend (TypeScript / Leaflet) :</strong> Une carte interactive interrogeant de façon
+                asynchrone (Fetch) l'API des VélOstan'lib pour afficher l'état des stations en temps réel avec des
+                icônes SVG personnalisées.</li>
+            <li><strong>Client de test :</strong> Un client RMI indépendant a été codé pour valider le bon
+                fonctionnement métier sans passer par l'interface web.</li>
         </ul>
 
-        <h2>3. Technologies utilisées</h2>
+        <h2>3. Déploiement en production (IUT)</h2>
+        <p>L'application est déployée dans l'environnement de l'IUT Nancy-Charlemagne :</p>
+        <table style="width: 100%; border-collapse: collapse; margin: 15px 0; font-size: 14px;">
+            <thead>
+                <tr style="background: #277d4a; color: white;">
+                    <th style="padding: 8px 12px; text-align: left;">Composant</th>
+                    <th style="padding: 8px 12px; text-align: left;">Hébergement</th>
+                    <th style="padding: 8px 12px; text-align: left;">Détails</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr style="background: #f9f9f9;">
+                    <td style="padding: 8px 12px; border-bottom: 1px solid #ddd;"><strong>Frontend</strong></td>
+                    <td style="padding: 8px 12px; border-bottom: 1px solid #ddd;">Serveur Webetu de l'IUT</td>
+                    <td style="padding: 8px 12px; border-bottom: 1px solid #ddd;"><a
+                            href="https://webetu.iutnc.univ-lorraine.fr/www/e52526u/nancy-carte/"
+                            target="_blank">https://webetu.iutnc.univ-lorraine.fr/www/e52526u/nancy-carte/</a></td>
+                </tr>
+                <tr>
+                    <td style="padding: 8px 12px; border-bottom: 1px solid #ddd;"><strong>Serveur RMI + Proxy</strong>
+                    </td>
+                    <td style="padding: 8px 12px; border-bottom: 1px solid #ddd;">Machine de l'IUT (en salle)</td>
+                    <td style="padding: 8px 12px; border-bottom: 1px solid #ddd;">Lancés manuellement par un membre du
+                        groupe</td>
+                </tr>
+                <tr style="background: #f9f9f9;">
+                    <td style="padding: 8px 12px; border-bottom: 1px solid #ddd;"><strong>Base de données</strong></td>
+                    <td style="padding: 8px 12px; border-bottom: 1px solid #ddd;">Serveur Charlemagne</td>
+                    <td style="padding: 8px 12px; border-bottom: 1px solid #ddd;">Accès via les identifiants élève d'un
+                        membre du groupe</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>4. Technologies utilisées</h2>
         <ul>
-            <li><strong>Frontend :</strong> HTML5, CSS3, TypeScript (compilé avec esbuild), Leaflet (Cartographie open-source).</li>
-            <li><strong>Backend :</strong> Java 17, Java RMI (Remote Method Invocation), <code>HttpServer</code> (pour le Proxy HTTP).</li>
-            <li><strong>Base de données :</strong> Oracle (Pilote ojdbc17), requêtes SQL préparées.</li>
-            <li><strong>Gestion de dépendances :</strong> Maven (pour le Java) et npm (pour le TypeScript).</li>
+            <li><strong>Java 11+</strong> — RMI, HttpServer, JDBC</li>
+            <li><strong>Maven</strong> — Build multi-modules</li>
+            <li><strong>Oracle</strong> — Base de données relationnelle (ojdbc17)</li>
+            <li><strong>Gson</strong> — Parsing JSON dans le proxy</li>
+            <li><strong>TypeScript + esbuild</strong> — Frontend</li>
+            <li><strong>Leaflet</strong> — Carte interactive open-source</li>
         </ul>
 
-        <h2>4. Déploiement et Exécution</h2>
+        <h2>5. Prérequis</h2>
+        <table style="width: 100%; border-collapse: collapse; margin: 15px 0; font-size: 14px;">
+            <thead>
+                <tr style="background: #277d4a; color: white;">
+                    <th style="padding: 8px 12px; text-align: left;">Outil</th>
+                    <th style="padding: 8px 12px; text-align: left;">Version minimale</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr style="background: #f9f9f9;">
+                    <td style="padding: 8px 12px; border-bottom: 1px solid #ddd;"><strong>Java JDK</strong></td>
+                    <td style="padding: 8px 12px; border-bottom: 1px solid #ddd;">11+</td>
+                </tr>
+                <tr>
+                    <td style="padding: 8px 12px; border-bottom: 1px solid #ddd;"><strong>Maven</strong></td>
+                    <td style="padding: 8px 12px; border-bottom: 1px solid #ddd;">3.6+</td>
+                </tr>
+                <tr style="background: #f9f9f9;">
+                    <td style="padding: 8px 12px; border-bottom: 1px solid #ddd;"><strong>Node.js</strong></td>
+                    <td style="padding: 8px 12px; border-bottom: 1px solid #ddd;">16+ (pour le frontend)</td>
+                </tr>
+                <tr>
+                    <td style="padding: 8px 12px; border-bottom: 1px solid #ddd;"><strong>npm</strong></td>
+                    <td style="padding: 8px 12px; border-bottom: 1px solid #ddd;">8+ (pour le frontend)</td>
+                </tr>
+                <tr style="background: #f9f9f9;">
+                    <td style="padding: 8px 12px; border-bottom: 1px solid #ddd;"><strong>Oracle DB</strong></td>
+                    <td style="padding: 8px 12px; border-bottom: 1px solid #ddd;">Accès à une instance Oracle</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>6. Déploiement et Exécution</h2>
         <p>Pour lancer l'application complètement, plusieurs terminaux sont nécessaires :</p>
-        
-        <h3>Étape A : Compilation du backend Java (Maven)</h3>
+
+        <h3>Étape A : Préparer la base de données</h3>
+        <p>Exécuter les scripts SQL dans l'ordre sur instance Oracle :</p>
+        <div class="code-block">@database/script.sql<br>@database/insert.sql</div>
+
+        <h3>Étape B : Compilation du backend Java (Maven)</h3>
         <p>À la racine du dossier RMI :</p>
         <div class="code-block">cd RMI<br>mvn clean package</div>
+        <p>Cela compile les trois modules (<code>service</code>, <code>proxy</code>, <code>client</code>) et produit les
+            JARs dans leurs répertoires <code>target/</code> respectifs.</p>
 
-        <h3>Étape B : Lancement du Serveur RMI</h3>
-        <p>Depuis le dossier RMI, lancer le serveur (qui va tourner en continu) :</p>
+        <h3>Étape C : Lancement du Serveur RMI</h3>
+        <p>Le serveur RMI doit être lancé <strong>en premier</strong> car le proxy s'y connecte au démarrage. Depuis le
+            dossier RMI :</p>
         <div class="code-block">
-            <!-- Remplacement des séparateurs selon l'OS (Windows vs Linux) -->
             # Sur Windows :<br>
-            java -cp "service/target/rmi-service-1.0.jar;service/ojdbc17.jar" LancerServeur<br><br>
-            # Sur Linux / Mac (pour les machines de l'IUT) :<br>
-            java -cp "service/target/rmi-service-1.0.jar:service/ojdbc17.jar" LancerServeur
+            java -cp "service/target/rmi-service-1.0.jar;service/ojdbc17.jar" sae.s4.rmi.service.LancerServeur<br><br>
+            # Sur Linux / Mac :<br>
+            java -cp "service/target/rmi-service-1.0.jar:service/ojdbc17.jar" sae.s4.rmi.service.LancerServeur
         </div>
+        <p>Il est possible de surcharger les identifiants de la base de données en ligne de commande :</p>
+        <div class="code-block">java -cp "..." sae.s4.rmi.service.LancerServeur &lt;user&gt; &lt;password&gt;</div>
 
-        <h3>Étape C : Lancement du Proxy HTTP</h3>
+        <h3>Configuration du serveur RMI</h3>
+        <p>Fichier <code>RMI/service/src/main/resources/config.properties</code> :</p>
+        <table style="width: 100%; border-collapse: collapse; margin: 15px 0; font-size: 14px;">
+            <thead>
+                <tr style="background: #277d4a; color: white;">
+                    <th style="padding: 8px 12px; text-align: left;">Propriété</th>
+                    <th style="padding: 8px 12px; text-align: left;">Description</th>
+                    <th style="padding: 8px 12px; text-align: left;">Valeur par défaut</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr style="background: #f9f9f9;">
+                    <td style="padding: 8px 12px; border-bottom: 1px solid #ddd;"><code>db.url</code></td>
+                    <td style="padding: 8px 12px; border-bottom: 1px solid #ddd;">URL JDBC de la base Oracle</td>
+                    <td style="padding: 8px 12px; border-bottom: 1px solid #ddd;"><em>(à adapter)</em></td>
+                </tr>
+                <tr>
+                    <td style="padding: 8px 12px; border-bottom: 1px solid #ddd;"><code>db.user</code></td>
+                    <td style="padding: 8px 12px; border-bottom: 1px solid #ddd;">Utilisateur Oracle</td>
+                    <td style="padding: 8px 12px; border-bottom: 1px solid #ddd;"><em>(à adapter)</em></td>
+                </tr>
+                <tr style="background: #f9f9f9;">
+                    <td style="padding: 8px 12px; border-bottom: 1px solid #ddd;"><code>db.password</code></td>
+                    <td style="padding: 8px 12px; border-bottom: 1px solid #ddd;">Mot de passe Oracle</td>
+                    <td style="padding: 8px 12px; border-bottom: 1px solid #ddd;"><em>(à adapter)</em></td>
+                </tr>
+                <tr>
+                    <td style="padding: 8px 12px; border-bottom: 1px solid #ddd;"><code>rmi.hostname</code></td>
+                    <td style="padding: 8px 12px; border-bottom: 1px solid #ddd;">Hostname RMI</td>
+                    <td style="padding: 8px 12px; border-bottom: 1px solid #ddd;">127.0.0.1</td>
+                </tr>
+                <tr style="background: #f9f9f9;">
+                    <td style="padding: 8px 12px; border-bottom: 1px solid #ddd;"><code>rmi.port</code></td>
+                    <td style="padding: 8px 12px; border-bottom: 1px solid #ddd;">Port du registre RMI</td>
+                    <td style="padding: 8px 12px; border-bottom: 1px solid #ddd;">1099</td>
+                </tr>
+                <tr>
+                    <td style="padding: 8px 12px; border-bottom: 1px solid #ddd;"><code>rmi.name</code></td>
+                    <td style="padding: 8px 12px; border-bottom: 1px solid #ddd;">Nom du service dans le registre</td>
+                    <td style="padding: 8px 12px; border-bottom: 1px solid #ddd;">serviceRestaurant</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3>Étape D : Lancement du Proxy HTTP</h3>
         <p>Dans un autre terminal, depuis le dossier RMI :</p>
         <div class="code-block">java -jar proxy/target/rmi-proxy-1.0.jar</div>
 
-        <h3>Étape D : Test avec le Client RMI (Facultatif)</h3>
+        <h3>Configuration du proxy</h3>
+        <p>Fichier <code>RMI/proxy/src/main/resources/config.properties</code> :</p>
+        <table style="width: 100%; border-collapse: collapse; margin: 15px 0; font-size: 14px;">
+            <thead>
+                <tr style="background: #277d4a; color: white;">
+                    <th style="padding: 8px 12px; text-align: left;">Propriété</th>
+                    <th style="padding: 8px 12px; text-align: left;">Description</th>
+                    <th style="padding: 8px 12px; text-align: left;">Valeur par défaut</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr style="background: #f9f9f9;">
+                    <td style="padding: 8px 12px; border-bottom: 1px solid #ddd;"><code>rmi.host</code></td>
+                    <td style="padding: 8px 12px; border-bottom: 1px solid #ddd;">Hôte du serveur RMI</td>
+                    <td style="padding: 8px 12px; border-bottom: 1px solid #ddd;">localhost</td>
+                </tr>
+                <tr>
+                    <td style="padding: 8px 12px; border-bottom: 1px solid #ddd;"><code>rmi.port</code></td>
+                    <td style="padding: 8px 12px; border-bottom: 1px solid #ddd;">Port du registre RMI</td>
+                    <td style="padding: 8px 12px; border-bottom: 1px solid #ddd;">1099</td>
+                </tr>
+                <tr style="background: #f9f9f9;">
+                    <td style="padding: 8px 12px; border-bottom: 1px solid #ddd;"><code>rmi.name</code></td>
+                    <td style="padding: 8px 12px; border-bottom: 1px solid #ddd;">Nom du service RMI</td>
+                    <td style="padding: 8px 12px; border-bottom: 1px solid #ddd;">serviceRestaurant</td>
+                </tr>
+                <tr>
+                    <td style="padding: 8px 12px; border-bottom: 1px solid #ddd;"><code>http.port</code></td>
+                    <td style="padding: 8px 12px; border-bottom: 1px solid #ddd;">Port d'écoute HTTP du proxy</td>
+                    <td style="padding: 8px 12px; border-bottom: 1px solid #ddd;">8080</td>
+                </tr>
+                <tr style="background: #f9f9f9;">
+                    <td style="padding: 8px 12px; border-bottom: 1px solid #ddd;"><code>incidents.url</code></td>
+                    <td style="padding: 8px 12px; border-bottom: 1px solid #ddd;">URL de l'API Grand Nancy (incidents)
+                    </td>
+                    <td style="padding: 8px 12px; border-bottom: 1px solid #ddd;"><em>(URL open data)</em></td>
+                </tr>
+                <tr>
+                    <td style="padding: 8px 12px; border-bottom: 1px solid #ddd;"><code>iut.proxy.host</code></td>
+                    <td style="padding: 8px 12px; border-bottom: 1px solid #ddd;">Proxy réseau IUT (vide si hors IUT)
+                    </td>
+                    <td style="padding: 8px 12px; border-bottom: 1px solid #ddd;"><em>(vide)</em></td>
+                </tr>
+                <tr style="background: #f9f9f9;">
+                    <td style="padding: 8px 12px; border-bottom: 1px solid #ddd;"><code>iut.proxy.port</code></td>
+                    <td style="padding: 8px 12px; border-bottom: 1px solid #ddd;">Port du proxy IUT (vide si hors IUT)
+                    </td>
+                    <td style="padding: 8px 12px; border-bottom: 1px solid #ddd;"><em>(vide)</em></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3>Endpoints exposés par le proxy</h3>
+        <table style="width: 100%; border-collapse: collapse; margin: 15px 0; font-size: 14px;">
+            <thead>
+                <tr style="background: #277d4a; color: white;">
+                    <th style="padding: 8px 12px; text-align: left;">Méthode</th>
+                    <th style="padding: 8px 12px; text-align: left;">Route</th>
+                    <th style="padding: 8px 12px; text-align: left;">Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr style="background: #f9f9f9;">
+                    <td style="padding: 8px 12px; border-bottom: 1px solid #ddd;"><code>GET</code></td>
+                    <td style="padding: 8px 12px; border-bottom: 1px solid #ddd;"><code>/restaurants</code></td>
+                    <td style="padding: 8px 12px; border-bottom: 1px solid #ddd;">Liste tous les restaurants (JSON)</td>
+                </tr>
+                <tr>
+                    <td style="padding: 8px 12px; border-bottom: 1px solid #ddd;"><code>POST</code></td>
+                    <td style="padding: 8px 12px; border-bottom: 1px solid #ddd;"><code>/reserver</code></td>
+                    <td style="padding: 8px 12px; border-bottom: 1px solid #ddd;">Réserve une table (body JSON)</td>
+                </tr>
+                <tr style="background: #f9f9f9;">
+                    <td style="padding: 8px 12px; border-bottom: 1px solid #ddd;"><code>GET</code></td>
+                    <td style="padding: 8px 12px; border-bottom: 1px solid #ddd;"><code>/incidents</code></td>
+                    <td style="padding: 8px 12px; border-bottom: 1px solid #ddd;">Incidents de circulation Grand Nancy
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <p>Exemple de body pour <code>/reserver</code> :</p>
+        <div class="code-block" style="white-space: pre; text-align: left;">{
+            "nom": "Dupont",
+            "prenom": "Jean",
+            "convives": 3,
+            "telephone": "0612345678",
+            "idRestaurant": 1,
+            "date": "2026-06-10",
+            "heure": "19:00"
+            }</div>
+
+        <h3>Étape E : Test avec le Client RMI (Facultatif)</h3>
         <p>Pour vérifier le service RMI via le terminal :</p>
         <div class="code-block">java -jar client/target/rmi-client-1.0.jar</div>
+        <p>Il exécute automatiquement plusieurs scénarios de test (récupération des restaurants, réservation valide,
+            restaurant inexistant, champs manquants, convives invalides).</p>
 
-        <h3>Étape E : Compilation et Lancement du Frontend (Facultatif)</h3>
-        <p>Dans le dossier <code>carte-nancy</code>, recompiler le TypeScript (si des modifications sont faites) et ouvrir le site :</p>
+        <h3>Étape F : Compilation et Lancement du Frontend (Facultatif)</h3>
+        <p>Dans le dossier <code>carte-nancy</code>, recompiler le TypeScript (si des modifications sont faites) :</p>
         <div class="code-block">
             cd carte-nancy<br>
             npm install<br>
             npm run build
         </div>
-        <p>Ensuite, placez le projet sur un serveur web local (comme Apache XAMPP ou Webetu) et accédez à <code>http://localhost/{chemin_du_projet}/carte-nancy/index.html</code> depuis votre navigateur.</p>
+        <p>Puis déposer le contenu du dossier <code>carte-nancy/</code> sur Webetu (via SFTP ou le gestionnaire de
+            fichiers de l'IUT).</p>
+        <p><strong>URL de production :</strong> <a href="https://webetu.iutnc.univ-lorraine.fr/www/e52526u/nancy-carte/"
+                target="_blank">https://webetu.iutnc.univ-lorraine.fr/www/e52526u/nancy-carte/</a></p>
+
+        <h2>7. Structure du projet</h2>
+        <div class="code-block" style="white-space: pre; text-align: left; font-size: 12px; line-height: 1.5;">├── RMI/
+            # Backend Java (Maven multi-modules)
+            │ ├── pom.xml # POM parent
+            │ ├── common/ # Module interface RMI partagée
+            │ │ └── ServiceRestaurant.java
+            │ ├── service/ # Module serveur RMI
+            │ │ ├── ojdbc17.jar # Driver Oracle
+            │ │ ├── LancerServeur.java
+            │ │ └── ServiceRestaurantImpl.java
+            │ ├── proxy/ # Module proxy HTTP
+            │ │ └── ProxyHTTP.java
+            │ └── client/ # Module client de test RMI
+            │ └── LancerClient.java
+            ├── carte-nancy/ # Frontend (TypeScript + Leaflet)
+            │ ├── index.html
+            │ ├── package.json
+            │ ├── src/ # Sources TypeScript
+            │ └── dist/ # Bundle compilé (app.js)
+            ├── database/ # Scripts SQL
+            │ ├── script.sql # Création des tables
+            │ └── insert.sql # Données de test
+            └── Documents/ # Documentation
+            └── architecture.png # Schéma d'architecture</div>
+
+        <h2>Résumé : ordre de lancement</h2>
+        <div class="code-block" style="white-space: pre; text-align: left; line-height: 1.6;">1. Base de données Oracle
+            → Exécuter script.sql + insert.sql (une seule fois)
+            2. mvn clean package → Compiler les 3 modules Java
+            3. java ... LancerServeur → Démarrer le serveur RMI (port 1099)
+            4. java -jar ...rmi-proxy → Démarrer le proxy HTTP (port 8080)
+            5. Frontend déjà en ligne → https://webetu.iutnc.univ-lorraine.fr/www/e52526u/nancy-carte/</div>
 
     </div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script type="module" src="dist/app.js"></script>
-    
+
     <!-- Script pour la gestion des onglets -->
     <script>
         function openTab(evt, tabName) {
@@ -291,22 +710,28 @@
                 tabcontent[i].style.display = "none";
                 tabcontent[i].classList.remove("active");
             }
-            
+
             // Retirer la classe 'active' de tous les boutons
             var tablinks = document.getElementsByClassName("tab-btn");
             for (var i = 0; i < tablinks.length; i++) {
                 tablinks[i].classList.remove("active");
             }
-            
+
             // Afficher l'onglet actuel et ajouter la classe 'active'
             var currentTab = document.getElementById(tabName);
             currentTab.style.display = "block";
             // Petit hack pour forcer Leaflet à se redimensionner quand l'onglet carte s'affiche
             if (tabName === 'map-tab') {
-                setTimeout(function(){ window.dispatchEvent(new Event('resize')); }, 100);
+                setTimeout(function () { window.dispatchEvent(new Event('resize')); }, 100);
             }
             evt.currentTarget.classList.add("active");
         }
+
+        function toggleCategory(listId, headerEl) {
+            var ul = document.getElementById(listId);
+            if (ul) ul.classList.toggle('collapsed');
+        }
     </script>
 </body>
+
 </html>
