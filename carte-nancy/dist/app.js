@@ -102,14 +102,24 @@ function afficherRestaurant(restaurant) {
                 <input type="tel" name="telephone" placeholder="T\xE9l\xE9phone" required style="padding: 4px; font-size: 12px;">
                 <input type="number" name="convives" placeholder="Nb convives" min="1" max="20" required style="padding: 4px; font-size: 12px;">
                 <div style="display: flex; gap: 5px;">
-                    <input type="date" name="date" required style="padding: 4px; font-size: 12px; flex: 1;">
-                    <input type="time" name="heure" required style="padding: 4px; font-size: 12px; width: 80px;">
+                    <input type="date" name="date" required style="padding: 4px; font-size: 12px; flex: 1;" id="resa-date-${restaurant.id}">
+                    <select name="heure" required style="padding: 4px; font-size: 12px; width: 80px;">
+                        <option value="12:00">12:00</option>
+                        <option value="19:00">19:00</option>
+                        <option value="21:00">21:00</option>
+                    </select>
                 </div>
                 <button type="submit" style="margin-top: 5px; padding: 6px; background-color: #277d4a; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px;">R\xE9server</button>
                 <div id="msg-resa-${restaurant.id}" style="font-size: 12px; text-align: center; margin-top: 5px; min-height: 15px;"></div>
             </form>
         </div>
     `;
+  setTimeout(() => {
+    const dateInput = popupContent.querySelector(`#resa-date-${restaurant.id}`);
+    if (dateInput) {
+      dateInput.value = (/* @__PURE__ */ new Date()).toISOString().split("T")[0];
+    }
+  }, 0);
   popupContent.querySelector("form")?.addEventListener("submit", (e) => {
     e.preventDefault();
     const form = e.target;
