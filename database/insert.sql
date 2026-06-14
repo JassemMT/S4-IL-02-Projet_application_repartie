@@ -1053,3 +1053,38 @@ WHERE NUM_PLAT = 12;
    ========================================================================= */
 
 COMMIT;
+
+/* =========================================================================
+   GÉNÉRATION AUTOMATIQUE DES CRÉNEAUX SUR 1 AN (PL/SQL)
+   Génère les services de 12h, 19h et 21h pour chaque table existante
+   à partir du 11 juin 2026 jusqu'au 11 juin 2027.
+   ========================================================================= */
+DECLARE
+    v_date DATE := DATE '2026-06-11';
+    v_end_date DATE := DATE '2027-06-11';
+BEGIN
+    WHILE v_date <= v_end_date LOOP
+        FOR t IN (SELECT NUM_TABLE FROM TABLE_RESTAURANT) LOOP
+            -- Service du Midi (12:00 - 14:00)
+            INSERT INTO CRENEAU_TABLE (NUM_CRENEAU, NUM_TABLE, DEBUT, FIN, STATUT)
+            VALUES (SEQ_CRENEAU_TABLE.NEXTVAL, t.NUM_TABLE, 
+                    CAST(v_date + INTERVAL '12' HOUR AS TIMESTAMP), 
+                    CAST(v_date + INTERVAL '14' HOUR AS TIMESTAMP), 'LIBRE');
+            
+            -- Service du Soir 1 (19:00 - 21:00)
+            INSERT INTO CRENEAU_TABLE (NUM_CRENEAU, NUM_TABLE, DEBUT, FIN, STATUT)
+            VALUES (SEQ_CRENEAU_TABLE.NEXTVAL, t.NUM_TABLE, 
+                    CAST(v_date + INTERVAL '19' HOUR AS TIMESTAMP), 
+                    CAST(v_date + INTERVAL '21' HOUR AS TIMESTAMP), 'LIBRE');
+            
+            -- Service du Soir 2 (21:00 - 23:00)
+            INSERT INTO CRENEAU_TABLE (NUM_CRENEAU, NUM_TABLE, DEBUT, FIN, STATUT)
+            VALUES (SEQ_CRENEAU_TABLE.NEXTVAL, t.NUM_TABLE, 
+                    CAST(v_date + INTERVAL '21' HOUR AS TIMESTAMP), 
+                    CAST(v_date + INTERVAL '23' HOUR AS TIMESTAMP), 'LIBRE');
+        END LOOP;
+        v_date := v_date + 1;
+    END LOOP;
+    COMMIT;
+END;
+/
