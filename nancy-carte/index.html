@@ -408,7 +408,20 @@
                 fonctionnement métier sans passer par l'interface web.</li>
         </ul>
 
-        <h2>3. Déploiement en production (IUT)</h2>
+        <h2>3. Question de réflexion</h2>
+        <p><strong>Est-ce responsable d'ainsi contourner la politique de sécurité de votre navigateur ?</strong></p>
+        <div style="background: #fff3cd; border-left: 4px solid #ffeeba; padding: 10px; margin-bottom: 15px;">
+            <em>Non, ce n'est <strong>pas du tout responsable</strong>. Le navigateur bloque nativement le
+                <strong>Contenu Mixte</strong> (Mixed Content) et les requêtes <strong>CORS</strong> non autorisées pour
+                protéger l'utilisateur contre le vol de données et les attaques "Man-in-the-Middle". Contourner ces
+                sécurités en forçant la désactivation de la protection directement dans les paramètres du navigateur
+                expose l'utilisateur à des failles de sécurité majeures sur l'ensemble de sa navigation web. En
+                production, la solution "propre" consiste à ce que le backend (notre Proxy HTTP) réalise lui-même la
+                requête vers l'API, ou que l'API externe supporte le HTTPS avec les en-têtes CORS adéquats. Ne jamais
+                demander au client d'abaisser sa propre sécurité.</em>
+        </div>
+
+        <h2>4. Déploiement en production (IUT)</h2>
         <p>L'application est déployée dans l'environnement de l'IUT Nancy-Charlemagne :</p>
         <table style="width: 100%; border-collapse: collapse; margin: 15px 0; font-size: 14px;">
             <thead>
@@ -737,7 +750,8 @@
     <div id="config-tab" class="tab-content" style="padding: 20px 40px; max-width: 800px; margin: auto;">
         <h2>Configuration Dynamique</h2>
         <p>Cette page permet de configurer l'adresse du serveur backend sans avoir à recompiler le projet avec
-            <code>npm</code>.</p>
+            <code>npm</code>.
+        </p>
         <div style="background: #f4f4f4; padding: 20px; border-radius: 8px; border: 1px solid #ddd;">
             <label for="proxy-url-input" style="font-weight: bold; display: block; margin-bottom: 10px;">URL du Proxy
                 HTTP :</label>

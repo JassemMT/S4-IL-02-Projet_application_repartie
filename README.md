@@ -286,6 +286,14 @@ Puis déposer manuellement le contenu du dossier `nancy-carte/` sur Webetu quand
 
 ---
 
+## Réponse à la question de réflexion
+
+**Est-ce responsable d'ainsi contourner la politique de sécurité de votre navigateur ?**
+
+> *Non, ce n'est **pas du tout responsable**. Le navigateur bloque nativement le **Contenu Mixte** (Mixed Content) et les requêtes **CORS** non autorisées pour protéger l'utilisateur contre le vol de données et les attaques "Man-in-the-Middle". Contourner ces sécurités directement via les paramètres du navigateur (en désactivant la protection dans Firefox ou Chrome) expose l'ordinateur de l'utilisateur à des failles de sécurité sur l'ensemble de sa navigation web. En production, il ne faut jamais demander à un client d'abaisser la sécurité de son navigateur. La "vraie" solution consiste à ce que le serveur gère lui-même ces requêtes (via le proxy backend) ou que l'API fournisse une version HTTPS avec les en-têtes CORS corrects.*
+
+---
+
 ## Technologies
 
 - **Java 11+** — RMI, HttpServer, JDBC
