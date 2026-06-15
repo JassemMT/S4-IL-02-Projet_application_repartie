@@ -126,10 +126,13 @@ public class ProxyHTTP {
         */
         if (!iutProxyHost.isEmpty() && !iutProxyPort.isEmpty()) {
             httpClient = HttpClient.newBuilder()
+                .connectTimeout(java.time.Duration.ofSeconds(5))
                 .proxy(java.net.ProxySelector.of(new InetSocketAddress(iutProxyHost, Integer.parseInt(iutProxyPort))))
                 .build();
         } else {
-            httpClient = HttpClient.newHttpClient();
+            httpClient = HttpClient.newBuilder()
+                .connectTimeout(java.time.Duration.ofSeconds(5))
+                .build();
         }
 
         // --- Connexion au registre RMI ---
@@ -147,6 +150,7 @@ public class ProxyHTTP {
         HttpServer server;
         try {
             server = HttpServer.create(new InetSocketAddress(httpPort), 0);
+            server.setExecutor(java.util.concurrent.Executors.newCachedThreadPool());
         } catch (Exception e) {
             System.err.println("Erreur démarrage serveur HTTP sur le port " + httpPort + " : " + e.getMessage());
             return;
@@ -213,6 +217,7 @@ public class ProxyHTTP {
                 }
                 HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(incidentsUrl))
+                    .timeout(java.time.Duration.ofSeconds(5))
                     .GET()
                     .build();
                 HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
