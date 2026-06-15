@@ -117,6 +117,30 @@ public class ProxyHTTP {
         String iutProxyHost = props.getProperty("iut.proxy.host", "").trim();
         String iutProxyPort = props.getProperty("iut.proxy.port", "").trim();
 
+        boolean useIutProxy = !iutProxyHost.isEmpty() && !iutProxyPort.isEmpty();
+
+        // --- Surcharge de la configuration via les arguments ---
+        // Format attendu: --httpPort 8080 --rmiHost localhost --rmiPort 1099 --useIutProxy true
+        for (int i = 0; i < args.length; i++) {
+            switch(args[i]) {
+                case "--httpPort":
+                case "-p":
+                    if (i + 1 < args.length) httpPort = Integer.parseInt(args[++i]);
+                    break;
+                case "--rmiHost":
+                case "-rh":
+                    if (i + 1 < args.length) rmiHost = args[++i];
+                    break;
+                case "--rmiPort":
+                case "-rp":
+                    if (i + 1 < args.length) rmiPort = Integer.parseInt(args[++i]);
+                    break;
+                case "--useIutProxy":
+                    if (i + 1 < args.length) useIutProxy = Boolean.parseBoolean(args[++i]);
+                    break;
+            }
+        }
+
         HttpClient httpClient;
 
         /*Explication :
@@ -124,7 +148,7 @@ public class ProxyHTTP {
         * et que nous devons utiliser le proxy de l'IUT pour accéder à Internet (notamment pour l'API Grand Nancy).
         * Sinon, nous sommes probablement en local et pouvons faire les requêtes HTTP directement sans proxy.
         */
-        if (!iutProxyHost.isEmpty() && !iutProxyPort.isEmpty()) {
+        if (useIutProxy && !iutProxyHost.isEmpty() && !iutProxyPort.isEmpty()) {
             httpClient = HttpClient.newBuilder()
                 .connectTimeout(java.time.Duration.ofSeconds(5))
                 .proxy(java.net.ProxySelector.of(new InetSocketAddress(iutProxyHost, Integer.parseInt(iutProxyPort))))
@@ -217,7 +241,7 @@ public class ProxyHTTP {
                 }
                 HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(incidentsUrl))
-                    .timeout(java.time.Duration.ofSeconds(5))
+                    .timeout(java.time.Duration.ofSeconds(40))
                     .GET()
                     .build();
                 HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
@@ -228,7 +252,7 @@ public class ProxyHTTP {
                 sendJson(exchange, 200, response.body());
             } catch (Exception e) {
                 System.err.println("Erreur /incidents : " + e.getMessage());
-                try { sendJson(exchange, 500, "{\"status\":\"error\",\"message\":\"Erreur interne\"}"); } catch (Exception ignored) {}
+                try { sendJson(exchange, 500, "{\"status\":\"error\",\"message\":\"Erreur interne : " + e.getMessage() + "\"}"); } catch (Exception ignored) {}
             } finally {
                 exchange.close();
             }
