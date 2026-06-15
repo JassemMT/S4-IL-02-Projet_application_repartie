@@ -133,6 +133,17 @@ Dans un **nouveau terminal**, depuis le dossier `RMI` :
 java -jar proxy/target/rmi-proxy-1.0.jar
 ```
 
+Le proxy accepte les arguments optionnels suivants pour surcharger la configuration :
+- `--httpPort` ou `-p` : Port d'écoute HTTP du proxy
+- `--rmiHost` ou `-rh` : Hôte du serveur RMI
+- `--rmiPort` ou `-rp` : Port du registre RMI
+- `--useIutProxy` : `true` ou `false` pour forcer l'activation ou la désactivation du proxy IUT (ecrase le `config.properties`)
+
+Exemple :
+```bash
+java -jar proxy/target/rmi-proxy-1.0.jar --httpPort 8080 --useIutProxy false
+```
+
 Vous devriez voir :
 ```
 Connecté au service RMI : serviceRestaurant @ localhost:1099
@@ -150,8 +161,8 @@ Le fichier `RMI/proxy/src/main/resources/config.properties` contient :
 | `rmi.name`       | Nom du service RMI                           | `serviceRestaurant` |
 | `http.port`      | Port d'écoute HTTP du proxy                  | `8080`            |
 | `incidents.url`  | URL de l'API Grand Nancy (incidents)         | *(URL open data)* |
-| `iut.proxy.host` | Proxy réseau IUT (laisser vide si hors IUT)  | *(vide)*          |
-| `iut.proxy.port` | Port du proxy IUT (laisser vide si hors IUT) | *(vide)*          |
+| `iut.proxy.host` | Proxy réseau IUT (laisser vide si hors IUT)  | `www-cache.iutnc.univ-lorraine.fr` |
+| `iut.proxy.port` | Port du proxy IUT (laisser vide si hors IUT) | `3128`            |
 
 ### Endpoints exposés par le proxy
 
@@ -189,24 +200,38 @@ Il exécute automatiquement plusieurs scénarios de test (récupération des res
 
 ---
 
-## 6. Frontend
+## 6. Frontend et Déploiement Simplifié
 
-Le frontend est une page HTML statique avec du TypeScript compilé. En production, il est déployé sur le serveur Webetu de l'IUT :
+Le frontend est une page HTML statique avec du TypeScript compilé, déployé sur le serveur Webetu de l'IUT. Il intègre une gestion dynamique de configuration, vous permettant de modifier l'adresse IP du serveur via l'onglet ** Configuration** directement depuis le navigateur.
 
-**URL de production :**
+**URL d'acces :**
 ```
 https://webetu.iutnc.univ-lorraine.fr/www/e52526u/nancy-carte/
 ```
 
-Pour recompiler le code TypeScript après modification :
+### Le script de démarrage automatisé 
+
+Un script bash `start_demo.sh` est fourni à la racine du projet pour automatiser le lancement lors de la démonstration sur une machine Linux de l'IUT. Il s'occupe de :
+1. Demander vos identifiants Oracle (sécurisé)
+2. Récupérer automatiquement l'IP locale de la machine IUT
+3. Injecter cette IP dans un fichier `env.js` copié vers votre déploiement Webetu (`~/www/nancy-carte/`)
+4. Lancer le Serveur RMI et le Proxy HTTP en arrière-plan avec des limites de RAM optimisées
+
+**Pour le lancer :**
+```bash
+./start_demo.sh
+```
+
+### Recompilation manuelle du frontend
+Pour recompiler le code TypeScript après modification locale :
 
 ```bash
-cd carte-nancy
+cd nancy-carte
 npm install
 npm run build
 ```
 
-Puis déposer le contenu du dossier `carte-nancy/` sur Webetu (via SFTP ou le gestionnaire de fichiers de l'IUT).
+Puis déposer manuellement le contenu du dossier `nancy-carte/` sur Webetu quand c'est necessaire.
 
 ---
 
@@ -234,7 +259,7 @@ Puis déposer le contenu du dossier `carte-nancy/` sur Webetu (via SFTP ou le ge
 │       ├── pom.xml
 │       └── src/main/java/sae/s4/rmi/client/
 │           └── LancerClient.java
-├── carte-nancy/                  # Frontend (TypeScript + Leaflet)
+├── nancy-carte/                  # Frontend (TypeScript + Leaflet)
 │   ├── index.html
 │   ├── package.json
 │   ├── src/                      # Sources TypeScript
@@ -248,7 +273,7 @@ Puis déposer le contenu du dossier `carte-nancy/` sur Webetu (via SFTP ou le ge
 
 ---
 
-## Résumé : ordre de lancement
+## Résumé : ordre de lancement (Manuellement sans le script)
 
 ```
 1.  Base de données Oracle    →  Exécuter script.sql + insert.sql (une seule fois)
@@ -257,6 +282,7 @@ Puis déposer le contenu du dossier `carte-nancy/` sur Webetu (via SFTP ou le ge
 4.  java -jar ...rmi-proxy    →  Démarrer le proxy HTTP  (port 8080) sur la même machine
 5.  Frontend déjà en ligne    →  https://webetu.iutnc.univ-lorraine.fr/www/e52526u/nancy-carte/
 ```
+*(Le script `./start_demo.sh` effectue les étapes 3 à 5 automatiquement)*
 
 ---
 
