@@ -59,3 +59,4 @@ Desktop.ini
 # ========================
 .env
 .env.*
+/RMI/service/src/main/resources/config.properties
