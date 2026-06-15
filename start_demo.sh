@@ -16,16 +16,13 @@ if [ -z "$SERVER_IP" ]; then
 fi
 echo " Utilisation de l'IP de la machine : $SERVER_IP"
 
-# 3. Mise à jour de app.js (Frontend)
-echo " Mise à jour de la configuration du Frontend (sans npm)..."
-CONFIG_FILE="nancy-carte/dist/app.js"
-# On remplace l'ancienne IP par la nouvelle IP, en cherchant le port 8080
-sed "s|http://[a-zA-Z0-9.\-]*:8080|http://$SERVER_IP:8080|g" $CONFIG_FILE > $CONFIG_FILE.tmp
-mv $CONFIG_FILE.tmp $CONFIG_FILE
+# 3. Génération de la configuration dynamique du Frontend (sans npm et sans sed)
+echo " Génération de env.js avec l'IP du serveur..."
+mkdir -p ~/www/carte-nancy
+echo "window.APP_CONFIG = { proxyUrl: 'http://$SERVER_IP:8080' };" > ~/www/carte-nancy/env.js
 
 # 5. Déploiement dans le ~/www de la machine
 echo " Copie du site vers le dossier Webetu (~/www/carte-nancy)..."
-mkdir -p ~/www/carte-nancy
 cp nancy-carte/index.html ~/www/carte-nancy/
 cp -r nancy-carte/dist ~/www/carte-nancy/
 
