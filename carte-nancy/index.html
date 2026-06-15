@@ -369,6 +369,7 @@
             <p><em>Schéma de l'architecture distribuée</em></p>
         </div>
 
+        
         <div class="code-block" style="text-align: left; white-space: pre; font-size: 12px; line-height: 1.4;">Frontend
             (TS/Leaflet) ──HTTP──► Proxy HTTP (Java) ──RMI──► Serveur RMI (Java) ──JDBC──► Oracle DB
             port 8080 port 1099</div>
@@ -687,6 +688,32 @@
             │ └── insert.sql # Données de test
             └── Documents/ # Documentation
             └── architecture.png # Schéma d'architecture</div>
+        
+        <h2>8. Diagrammes de séquence</h2>
+
+        <h3>8.1 Récupération des restaurants (via RMI)</h3>
+        <p>Le navigateur envoie une requête GET au proxy HTTP, qui appelle le service RMI. Ce service interroge la base Oracle et retourne la liste des restaurants au format JSON.</p>
+        <div class="schema-container">
+            <img src="../Documents/diag_seq_get_resto.png" alt="Diagramme restaurants" style="max-width:100%">
+        </div>
+
+        <h3>8.2 Réservation d'une table</h3>
+        <p>Le navigateur envoie un POST avec les informations de réservation. Le proxy transmet au service RMI qui ouvre une transaction Oracle. Si un créneau est libre, il est verrouillé (<code>FOR UPDATE WAIT 5</code>), la réservation est insérée et la transaction validée. En cas d'échec, un rollback est effectué.</p>
+        <div class="schema-container">
+            <img src="../Documents/diagReserverResto.png" alt="Diagramme réservation" style="max-width:100%">
+        </div>
+
+        <h3>8.3 Récupération des incidents (via HttpClient)</h3>
+        <p>Le navigateur interroge le proxy HTTP, qui fait lui-même un appel HTTP vers l'API ouverte du Grand Nancy. Le résultat est retransmis au navigateur en contournant les restrictions CORS.</p>
+        <div class="schema-container">
+            <img src="../Documents/diag_seq_GET_incidents.png" alt="Diagramme incidents" style="max-width:100%">
+        </div>
+
+        <h3>8.4 Vue globale de l'application</h3>
+        <p>Ce diagramme résume l'ensemble des flux de données entre le navigateur, le serveur webetu, le proxy Java, le service RMI, la base Oracle et les API externes.</p>
+        <div class="schema-container">
+            <img src="../Documents/diag_seq_app_global.png" alt="Diagramme global" style="max-width:100%">
+        </div>
 
         <h2>Résumé : ordre de lancement</h2>
         <div class="code-block" style="white-space: pre; text-align: left; line-height: 1.6;">1. Base de données Oracle
