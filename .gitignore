@@ -24,8 +24,8 @@ replay_pid*
 # ========================
 # Node
 # ========================
-node_modules/
-dist/
+#node_modules/
+#dist/
 # package-lock.json
 
 # ========================
